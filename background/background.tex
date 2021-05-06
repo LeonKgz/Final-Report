@@ -508,7 +508,33 @@ Here you can see that value function is approximated with an average returns of 
 
 
 
-\subsection{Batch & Online}
+\subsection{Batch \& Online and incremental updates}
+We can update the policy after every episode or after
+sampling a trace of 20 for example. the former is called online MC and the latter Batch MC. \\
+
+We can devise an incremental update from the normal definition of 'average':
+
+
+\subsection{Incremental Monte Carlo updates}
+
+\begin{equation}
+    \mu_k = \mu_{k - 1} + \frac{1}{k} (x_k - \mu_{k - 1})
+\end{equation}
+
+This is an important milestone now, since we can keep the running mean without storing traces of episodes. \\
+
+1) Update $V(s)$ incrementally after episode (s, a, r, s')\\
+\begin{equation}
+    V(s_t) \longleftarrow V(s_t) + \frac{1}{N(s_t)}(R_t - V(s_t))
+\end{equation}
+
+"Moreover if the world is non-stationary, it can be useful to track a running mean i.e. by gradually forgetting old episodes" [LECTURE]
+
+\begin{equation}
+    V(s_t) \longleftarrow V(s_t) + \alpha (R_t - V(s_t))
+\end{equation}
+
+"The parameter $\alpha$ controls the rate of forgetting old episodes." BAsically if you'r echaning the term $N(s_t)$ to some value n, you're calculating the average over the last n data points so you can specify that just by tweaking that value. hence alpha — "rate of forgetting old episodes"
 
 
 \section{Monte-Carlo}
