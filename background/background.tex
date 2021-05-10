@@ -27,28 +27,28 @@ One of the main specifications about the proprietary standard LoRa is the one pu
 \subsection{Shannon–Hartley theorem}
 
 As the spec recognizes, an important starting point is the Snannon-Hartley theorem or also referred to as The Shannon limit - a significant milestone in information theory \cite{mit_article_on_shannon} . What it basically describes is the maximum data rate that a channel can have transmitted error-free in a particular bandwidth subject to noise. Here is the formula referenced by Semtech \cite{semtech_spec}, first introduced in the original paper \cite{shannon} by Claude Shannon:
-\begin{equation}
-    C = B \times log_2 (\frac{S}{N} + 1)
-\end{equation}
+\begin{align}
+    C = B \times log_2 (\frac{S}{N} + 1) \label{eq:shannon}
+\end{align}
 where:
-\begin{equation}
+\begin{align*}
     C &- \text{channel capacity (in bits/s)}, \\
     B &- \text{channel bandwidth (in Hz)},\\
     S &- \text{average received signal power (in Watts)},\\
     N &- \text{average noise or interference power (in Watts)},\\ 
-\end{equation}
+\end{align*}
 Following the approximation from LoRa specification \cite{semtech_spec} assuming such noise that $\frac{S}{N} <<$ 1 applying the approximation to the algorithm:
-\begin{equation}
+\begin{align}
     log_2(1 + \frac{S}{N}) &= \frac{ln(1+ \frac{S}{N})}{ln2} \approx \frac{1}{ln2}\times \frac{S}{N} \approx 1.443 \times \frac{S}{N} \approx \frac{S}{N} \\
-\end{equation}
+\end{align}
 Subsequently we get:
-\begin{equation}
+\begin{align}
     \frac{C}{B}& \approx \frac{S}{N} \\
-\end{equation}
+\end{align}
 Which is equivalent to:
-\begin{equation}
+\begin{align}
     \frac{N}{S} & \approx \frac{B}{C}
-\end{equation}
+\end{align}
 
 
 
@@ -64,13 +64,17 @@ the same spreading sequence of bits \cite{dsss_article}. One of the disadvantage
 CSS is a modulation technique that has been around since 1940s \cite{semtech_spec} with 
 applications in naval and air military and also observed in fauna \cite{origins}. What makes CSS different from other Spread Spectrum techniques (despite some claiming it to be a subtype of DSSS \cite{orthogonality_description}) is the fact that it is resistant to multi-path fading and Doppler effect while having relatively moderate transmission power demands \cite{semtech_spec}. \\
 
-According to IEEE standard for information technology \cite{ieee_2007} "A chirp is a linear frequency modulated pulse. It could be thought of as sweeping the band at a very high speed. The type of CSS system defined for this standard uses patterns of smaller chirps, or ’sub chirps’, to build one larger chirp symbol." \\
+According to IEEE standard for information technology \cite{ieee_2007}: \\
+
+\begin{addmargin}[4em]{2em}% 1em left, 2em right
+«A chirp is a linear frequency modulated pulse. It could be thought of as sweeping the band at a very high speed. The type of CSS system defined for this standard uses patterns of smaller chirps, or ’sub chirps’, to build one larger chirp symbol.» \\
+\end{addmargin}
 
 When describing CSS symbols we are mainly concerned with 4 parameters. 
 Spreading factor ($SF$), minimal frequency $f_{min}$, maximal frequency $f_{max}$ and the input bits. Generation of a CSS symbol starts at the starting frequency $f_0$ lying between $f_{min}$ and $f_{max}$ as can be seen on the figure \ref{fig:slope}. The difference between $f_{min}$ and $f_{max}$ (i.e. $f_{max} - f_{min}$) is called bandwidth — B. $f_0$ represents the input information of $SF$ bits. Thus the symbol duration can be calculated using this formula from Application Note Semtech AN1200.22 \cite{semtech_spec}: 
-\begin{equation}
+\begin{align}
     T_S = \frac{2^{SF}}{B} 
-\end{equation}
+\end{align}
 
 % Spreading factor determines the number of bits to be encoded in a signal \cite{sf}
 
@@ -117,8 +121,6 @@ One gateway can typically cover a range of hunderds of meters to tens of kilomet
   \caption{LoRaWAN nodes and gateways connected to a LoRa server Source: \cite{doppler}}
   \label{fig:star}
 \end{figure}
-
-\newpage
 
 \subsection{Multiple Access Control (MAC) scheme}
 
@@ -207,14 +209,12 @@ The effect of implementing this energy profile can be seen in the figure \ref{fi
 
 \texttt{AirInterface} is the object via which \texttt{Node} and \texttt{Gateway} communicate. It processes the packets "in the air" and determines their airtime as well as simulating collisions between packets. 2 important objects that define it are \texttt{Propagation Model} and \texttt{SINR Model}.\\
 
-\newpage
-
 \texttt{Propagation Model} calculates the path loss 
 of a signal traveling in the channel through the air.
 the formula is defined in the original paper \cite{simulator} :
-\begin{equation}
-    PL(d) = PL(d_0) + 10n\times log\frac{d}{d_0} + X_{\sigma} [dB]
-\end{equation}
+\begin{align}
+    PL(d) = PL(d_0) + 10n\times log\frac{d}{d_0} + X_{\sigma} [dB] \label{eq:propagation_model}
+\end{align}
 
 Where the following parameters are used (parameters are taken for granted by the authors \cite{simulator} from another source \cite{propagation_model_parameters} [MORE DETAIL ON WHY AND HOW]):
 \begin{align*}
@@ -225,9 +225,9 @@ Where the following parameters are used (parameters are taken for granted by the
 \end{align*}
 
 The \texttt{SINR Model} is implemented similarly to how \texttt{SNR Model} was implemented in the original simulator. The model calculates signal-to-interference noise ratio (SINR) for the received signal strength values of packets in the air according to this formula [CITE WIKIPEDIA???]:
-\begin{equation}
-    \text{SINR}(x) = \frac{P}{I + N}
-\end{equation}
+\begin{align}
+    \text{SINR}(x) = \frac{P}{I + N} \label{eq:sinr}
+\end{align}
 where:
 \begin{align*}
      P &- \text{power of the examined signal}\\
@@ -241,9 +241,9 @@ decoded apriori \cite{noma_original}.\\
 
 \texttt{SINR Model} also calculates throughput from SINR values. The need for throughput metric will be explained below. This formula [CITE WIKI???] is used:
 
-\begin{align*}
+\begin{align}
     \text{throughput} = \text{$log_{2}$}(\text{sinr} + 1)
-\end{align*}
+\end{align}
 
 Collision model is not implemented as a separate object but through a collection of functions in \texttt{Air Interface}. The model implementation is motivated by the authors \cite{simulator} by the findings from another paper \cite{collision_conditions}, that looks at how reception overlap, carrier frequency, spreading factor and power can create conditions for a packet collision. The authors \cite{simulator} also assume that signals with different spreading factors are practically orthogonal and can be demodulated without colliding.
 
@@ -299,23 +299,23 @@ that describe the process we are modeling. Using an exmaple from this article \c
 
 Thus we can describe a Markov process through a set of states S and a probability transition matrix P satisfying the \textbf{Markov property}
 (memorylessness) [CITE]:
-\begin{equation}
+\begin{align}
     P_{ss'} = P[S_{t+1} = s' | S_{t} = s]\\
     \sum_{s' \in S} P_{ss'} = 1
-\end{equation}
+\end{align}
 
 \section{Markov Reward Process}
 Markov Reward Process is a Markov Process that 
-has a reward value tied to each state transition[CITE]. We can describe these rewards through another matrix R such that:
-\begin{equation}
+has a reward value tied to each state transition \cite{lecture_lets_go_markov}. We can describe these rewards through another matrix R such that:
+\begin{align}
     R_{s} = E[r_{t+1} | S_{t} = s]
-\end{equation}
+\end{align}
 This is the reward that the agent leaving state s receives upon transitioning at timestep $t+1$.\\
 
 The process is also defined by a discount factor $\gamma \in [0, 1]$. We need it to define the return value which is the estimated sum of all rewards starting from time-step t as such:
-\begin{equation}
+\begin{align}
     R_t = r_{t+1} + \gamma r_{t+2} + \gamma ^2 r_{t+3} + ... = \sum^{\infty}_{k=0}\gamma^{k}r_{t+k+1} 
-\end{equation}
+\end{align}
 
 The discount factor allows the agent to put different weight on immediate and distant rewards,
 with small $\gamma$ being more concerned with immediate results and large $\gamma$ looking far into the future. 
@@ -325,27 +325,28 @@ with small $\gamma$ being more concerned with immediate results and large $\gamm
 As the definition from lectures states: "The state value function v (s) of an MRP is the expected return R
 starting from state s at time t":
 
-\begin{equation}
+\begin{align}
     v(s) = \EX[R_t | S_t = s]
-\end{equation}
+\end{align}
 
 If we expand the $R_t$ term and applying the Tower Rule and Law of Total we will eventually [INPUT derivation] get 
 
-\begin{equation}
-    v(s) = \EX[r_{t+1} + \gamma v(S_{t+1})| S_t = s] = R_s + \gamma \sum_{s' \in S} P_{ss'}v(s')\\
-\end{equation}
+\begin{align}
+    v(s) &= \EX[r_{t+1} + \gamma v(S_{t+1})| S_t = s] \label{eq:value_function}\\
+    &= R_s + \gamma \sum_{s' \in S} P_{ss'}v(s')
+\end{align}
 
 And applying this to n states
-\begin{equation}
+\begin{align}
     \textbf{v} = R + \gamma P \textbf{}
-\end{equation}
+\end{align}
 
 where the vector \textbf{v} is n-dimensional.\\
 
 A direct solution to this would be 
-\begin{equation}
+\begin{align}
     \textbf{v} = (\bbone - \gamma P)^{-1}R
-\end{equation}
+\end{align}
 
 But since matrix inversion is computationally very expensive it is often not feasible to find \tetxbf{v} that way for small MRPs. We will look into iterative solutions
 for this problem: Dynamic programming, Monte-Carlo evaluation and Temporal Difference Learning.
@@ -359,18 +360,18 @@ We can now define what Markov Decision Process is, it is defined by a State Spac
 \subsection{Value Function}
 According to the definition from lectures: Value function for MDPs is:
 
-\begin{equation}
+\begin{align}
     V^{\pi}(s) = \EX_{\pi}[R_{t} | S_t = s] = \EX[\sum^{\infty}_{k=0} \gamma^k r_{t+k+1} | S_t = s]
-\end{equation}
+\end{align}
 
 "where $R_t$ is a discounted total return and the $r_{t+k+1}$" are immediate rewards.
 
-\begin{equation}
+\begin{align}
     V^{\pi}(s) &= \EX_{\pi}[R_{t} | S_t = s] \\ 
     &= \EX[\sum^{\infty}_{k=0} \gamma^k r_{t+k+1} | S_t = s] \\
     &= ... \\
     &= \sum_{a \in A} \pi(s, a) \sum_{s' \in S} P^{a}_{ss'} (R^{a}_{ss'} + \gamma V^{\pi}(s'))
-\end{equation}
+\end{align}
 
 "Thus we can see the self-consistency of the MDP value function and crucially $V^{\pi}$ has a unique solution"
 
@@ -380,32 +381,32 @@ According to the definition from lectures: Value function for MDPs is:
 \subsection{State Action Value Function}
 According to lecture "State Action Value Function defines How good is it to be in a given state and take a given action when you follow a policy $\pi$:
 
-\begin{equation}
+\begin{align}
     Q^{\pi}(s, a) = \EX[R_t | S_t = s, A_t = a] = \EX[\sum^{\infty}_{k=0} \gamma^k r_{t+k+1} | S_t = s, A_t = a]
-\end{equation}
+\end{align}
 
 And we can also derive the relationship between the state value and state-action value functions:
 
-\begin{equation}
+\begin{align}
     V^{\pi}(s) = \sum_{a \in A} \pi(s, a) Q^{\pi}(s, a) 
-\end{equation}
+\end{align}
 
 \subsection{Optimal Value and Optimality equations}
 If we are to optimize the state value function V we are to determine the optimal ploicy. According to lectures Optimal Value Function is:
-\begin{equation}
+\begin{align}
     V^*(s) = \max_{\pi} V^{\pi}(s)   \forall s \in S
-\end{equation}
+\end{align}
 And respectively for the state-action value function (input) 
 
 Applying to previous equation (4.9):
-\begin{equation}
+\begin{align}
     V^*(s) = \max_{a}\sum_{s'} P^{a}_{ss'} (R^{a}_{ss'} + \gamma V^{*}(s'))
-\end{equation}
+\end{align}
 
 Respectively for the state-action value function:
-\begin{equation}
+\begin{align}
     Q^*(s, a) = \sum_{s'} P^{a}_{ss'} (R^{a}_{ss'} + \gamma Q^{*}(s', a'))
-\end{equation}
+\end{align}
 
 \subsection{Assumptions}
 
@@ -430,14 +431,14 @@ As the lecture states the theory is as follows:\\\\
 
 "Let $\pi$ and $\pi'$ be any two deterministic policies such that $\forall s \in S$"
 
-\begin{equation}
+\begin{align}
     Q^{\pi}(s, \pi'(s)) \geq V^{\pi}(s).
-\end{equation}
+\end{align}
 
 "Then $\pi'$ must be as good or better than $\pi$":
-\begin{equation}
+\begin{align}
     V^{\pi'}(s) \geq V^{\pi}(s), \forall s \in S
-\end{equation}
+\end{align}
 
 The theorem can be proved in a series of expansions [EXPAND ON THAT, CITE]
 
@@ -454,8 +455,6 @@ As the lectures states Bellman's Principle of Optimality:\\
 A policy $\pi(a, s)$ achieves the optimal value from state $s$, \vpidash{s} = $V^{*}(s)$, if and only if:\\ 
 1) For any state $s'$ reachable from s, i.e. $\exists a : p(s', s, a) > 0$\\
 2) $\pi$ achieves the optimal value from state s', \vpi{s'} = \voptimal{s'}
- 
- \newpage
  
 \subsection{Policy Iteration Algorithms}
 
@@ -510,37 +509,377 @@ Here you can see that value function is approximated with an average returns of 
 
 \subsection{Batch \& Online and incremental updates}
 We can update the policy after every episode or after
-sampling a trace of 20 for example. the former is called online MC and the latter Batch MC. \\
-
-We can devise an incremental update from the normal definition of 'average':
-
+sampling a trace of 20 for example. the former is called online MC and the latter Batch MC.
 
 \subsection{Incremental Monte Carlo updates}
+We can devise an incremental update from the normal definition of 'average':
 
-\begin{equation}
+\begin{align}
     \mu_k = \mu_{k - 1} + \frac{1}{k} (x_k - \mu_{k - 1})
-\end{equation}
+\end{align}
 
 This is an important milestone now, since we can keep the running mean without storing traces of episodes. \\
 
 1) Update $V(s)$ incrementally after episode (s, a, r, s')\\
-\begin{equation}
+\begin{align}
     V(s_t) \longleftarrow V(s_t) + \frac{1}{N(s_t)}(R_t - V(s_t))
-\end{equation}
+\end{align}
 
 "Moreover if the world is non-stationary, it can be useful to track a running mean i.e. by gradually forgetting old episodes" [LECTURE]
 
-\begin{equation}
-    V(s_t) \longleftarrow V(s_t) + \alpha (R_t - V(s_t))
-\end{equation}
+\begin{align}
+    V(s_t) \longleftarrow V(s_t) + \alpha (R_t - V(s_t)) \label{eq:mc_increment}
+\end{align}
 
 "The parameter $\alpha$ controls the rate of forgetting old episodes." BAsically if you'r echaning the term $N(s_t)$ to some value n, you're calculating the average over the last n data points so you can specify that just by tweaking that value. hence alpha — "rate of forgetting old episodes"
 
-
-\section{Monte-Carlo}
 \section{Temporal Difference}
-\section{On and Off policy}
-\section{Q-Learning}
+
+\subsection{Combine MC and DP}
+We have now introduced to different approaches to solving 
+the reinforcement learning problem of finding the optimal 
+Value function for a problem at hand: Dynamic Programming and 
+Monte-Carlo. Dynamic programming achieves the optimal solution
+through "bootstrapping" i.e. estimating state values through
+neighbouring states. Monte-Carlo methods calculate the estimates through sampling directly from experience i.e. traces of episodes. \\
+
+\subsection{Temporal Difference}
+Temporal Difference is what combines DP and MC. Like MC It does not require knowledge of Markov Decision Process at hand and 
+learns from episodes of experience. Like DP it makes use of bootstrapping.
+
+\begin{figure}[h!]
+  \centering
+%   \hspace*{-1cm}  
+  \includegraphics[scale=0.5]{figures/TD_diagrams.PNG}
+  \caption{Temporal Difference; Source: Lecture}
+  \label{fig:td}
+\end{figure}
+
+\subsection{Update rule}
+
+here's the update rule for Temporal Difference:
+\begin{align}
+  V(s_t) \longleftarrow V(s_t) + \alpha (r_{t+1} + \gamma V(s_{t+1}) - V(s_t)) \label{eq:td_update}
+\end{align}
+
+where:
+\begin{align*}
+  r_{t+1} + \gamma V(s_{t+1}) - V(s_t) &\text{ — } \text{TD error}\\
+  r_{t+1} + \gamma V(s_{t+1}) &\text { — } \text{TD target}
+\end{align*}
+
+Comparing this to the update rule for MC (equation \ref{eq:mc_increment}) we can see that in addition to the actual measured reward $r_{t+1} (R_{t}$ in equation \ref{eq:mc_increment}) we add an estimate of the next state i.e. $V(s_{t+1})$. This estimation refers us back to the original estimation of the value function from equation \ref{eq:value_function}\\
+
+Here's the TD value estimation algorithm with the hew update rule combining bootstrapping and direct sampling:
+
+\begin{figure}[h!]
+  \centering
+%   \hspace*{-1cm}  
+  \includegraphics[scale=0.5]{figures/TD_value_estimation.PNG}
+  \caption{Temporal Difference value estimation algorithm; Source: Lecture}
+  \label{fig:td}
+\end{figure}
+
+\subsection{Bias-Variance tradeoff for TD and MC}
+«In statistics and ML the bias Variance tradeff is that you have to compromise between high variance + low bias and low variance + high bias». \\
+
+We can see that $R_t = r_{t+1} + \gamma r_{t+2} + \gamma ^2 r_{t+3} + ...$ is an unbiased estimate of $V^{\pi} (s_t)$ by the definition of the state value function itself. So if the update rule for TD was $r_{t+1} + \gamma V^{\pi}(s_{t+1})$ it would be an unbiased estimate of $V^{\pi}(s_{t})$ (given $V^{\pi}(s_{t+1})$ is the true value function). But what we actually have is an estimate of the $V^{\pi}(s_{t+1})$: $r_{t+1} + \gamma V(s_{t+1})$ and so the expression for TD target is the biased estimate of $V^{\pi}(s_t)$. \\
+
+Now if we compare TD and MC methods we can see that TD has some bias with MC being generally unbiased, at the same time TD has much lower variance since the estimate is based on one transition (s, a, r, s'), while MC return estimate depends on many transitions (trace of episodes). The immediate implications of this is that MC methods have good convergence,
+if the simulation runs for long enough but TD is usually more efficient, so it requres less time to learn the value function.
+But due to its nature it is more sensitive to the initalization values for value function.
+
+\section{Model Free Control }
+Now that we know how to estimate the value function with no model knowledge. The next step is to learn to optimize it and learn an optimal policy. \\
+
+We cannot refer to MDP in 2 scenarios: MDP is simply unknown or MDP is well defined but too big to generalise/estimate (Curse of dimensionality).
+
+\subsection{Generalised Policy Iteration on State Value function} one approach is Generalised Policy Iteration (similar in effect to the policy iteration above in figure \ref{fig:pia}). But we cannot apply the exact Policy improvement as before since the update rule for the policy being improved if you remember is: 
+\begin{align}
+    \pi(s) \leftarrow arg \max_{a} \sum_{s'} P^{a}_{ss'} [R^{a}_{ss'} + \gamma V(s')]
+\end{align}
+Here we need the knowledge of the state transition probabilities $P$ and the immediate reward function $R$. This is beyond our knowledge in a Model-free situation. Thus we can choose the policy greedily based on the state-action value function $Q(s, a)$ instead, which fits our Model-free narrative:  
+\begin{align}
+    \pi(s) \leftarrow arg \max_{a} Q(s, a) 
+\end{align}
+"Formally there's no difference between transitions between states and value of states and transitions between state-action pairs and state-action value function respectively. Both can be seen as Markov chains with a reward process."
+\subsection{MC Policy improvement sketch}
+
+Similarly to how Policy Improvement Theorem can be proven for Dynamic Programming, it can be shown that $Q^{\pi_k}(s, \pi_{k+1}(s)) \geq V^{\pi_k}(s)$. "Thus each subsequent policy is better than the previous one and this means convergence to optimal policy and value functions." 
+
+\subsection{on policy off policy}
+
+One of the important prerequisites for the above proof is the 
+«Exploring starts» assumption, i.e. the agent needs to learn the optimal policy by infinitely selecting all possible actions. There are 2 ways to ensure the agent continues to 
+explore all options: on-policy and off-policy methods. \\
+
+\textbf{On-policy} "methods evaluate and optimize the policy 
+being used to choose actions. Evaluating policy $\pi$ from experience sampled from $\pi$"\\
+
+\textbf{Off-policy} "methods evaluate and optimize a separate  policy, differrent from the one that generates the data. Learn about policy $\pi$ from experience sampled from $\pi'$"
+
+\subsection{Soft control}
+
+"Soft policies have a property such that all actions have a chance to be explored, i.e. $\pi(a, s) > 0 \forall s \in S, \forall a \in A.$\\
+
+A form of soft-policies are $\epsilon-$greedy policies, where 
+you can adjust a parameter $\epsilon$ to weigh a particular action such that it has a higher probability of being chosen,
+while all the other actions are equally probable (relative to each other):\\\\
+$\epsilon$-greedy policy with $\epsilon \in [0, 1]$:
+\begin{align}
+    \pi(s, a) = \begin{cases} 
+        1 - \epsilon + \frac{\epsilon}{|A(s)|}, \text{ if } a^{*} = arg \max_{a} Q(s, a) \\
+        \frac{\epsilon}{|A(s)|}, \text{ if }  a \neq a^*
+    \end{cases}   
+\end{align}
+\subsection{"On-policy e-greedy first-visit MC control algorithm"}
+\begin{figure}[h!]
+  \centering
+%   \hspace*{-1cm}  
+  \includegraphics[scale=0.5]{figures/fv_greedy_mc_control.PNG}
+  \caption{On-policy $\epsilon$-greedy first-visit MC control algorithm; Source: Lecture}
+  \label{fig:fv_mc_greedy}
+\end{figure}
+\newpage
+\subsection{convergence}
+
+Greedy in the Limit with Infinite Exploration (GLIE) is a set of conditions, that if satisfied ensure convergence of the policy. 
+
+\subsection{batch learning}
+
+Like before there are 2 MC approaches: batch learning and online learning
+
+\begin{figure}[h!]
+  \centering
+%   \hspace*{-1cm}  
+  \includegraphics[scale=0.5]{figures/mc_batch_greedy.PNG}
+  \caption{MC Batch Learning to Control; Source: Lecture}
+  \label{fig:mc_batch_greedy}
+\end{figure}
+\begin{figure}[h!]
+  \centering
+%   \hspace*{-1cm}  
+  \includegraphics[scale=0.5]{figures/mc_iterative_greedy.PNG}
+  \caption{MC Iterative Learning to Control; Source: Lecture}
+  \label{fig:mc_iterative_greedy}
+\end{figure}
+
+\subsection{summary }
+one of the issues in MC is sufficient exploration of all available actions. In simulated environments this issues can be tackled with randomness for state-action values at the start of  the learning process but harder to arrange in learning from real experience. \\
+
+"In on-policy the agent commits to exploration and learns the respective stochastic policy while in off-policy an agent learns a deterministic policy separate from the one followed. Typically off-policy methods rely on some form of importance sampling."
+
+\subsection{SARSA}
+Now TD has several advantages over MC such as lower variance and online learning so why not combine the $\epsilon$-greedy policy improvement and TD update rule from equation \ref{eq:td_update} with Q(S, A):
+\begin{align}
+    Q(S, A) \longleftarrow Q(S, A) + \alpha (r + \gamma Q(S', A') - Q(S, A)) \label{eq:sarsa_update_rule}
+\end{align}
+
+\begin{figure}[h!]
+  \centering
+%   \hspace*{-1cm}  
+  \includegraphics[scale=0.5]{figures/sarsa.PNG}
+  \caption{SARSA - On-Policy learning TD control; Source: Lecture}
+  \label{fig:sarsa}
+\end{figure}
+
+SARSA converges under the conditions of GLIE sequence of policies $\pi^k(a, s)$ and Robbins-Monroe sequence of step-sizes $\alpha_t$. "So, we have to control both the exploration $\epsilon$ and the learning rate
+$\alpha$ over time."
+
+"One issue for SARSA is sparse rewards when the reward 
+propagates down a trace through many episodes slowly. Two ways to deal with it are SARSA-Lambda and Hindsight Experience Replay"
+
+\subsection{off-policy methods}
+
+If you remember in off-policy we use a different policy $\pi'$ to generate the data while estimating and optimizing $Q^{\pi}$ and $V^{\pi}$ still. $\pi$ is the target policy and $\pi'$ is the  behaviour policy. An important assumption to ensure learning the assumption of coverage: $\pi(a, s) > 0 => \pi'(s, a) > 0$.\\
+
+"One of the most important breakthroughs in reinforcement learning was the development of off-policy TD control algorithm known as Q-learning (Watkins, 1989)." [LECTURE]
+
+\subsection{towards Q learning}
+The  next action is chosen using the behaviour policy, but in the update rule we use the alternative greedy successive action based on the target policy: $\max_a Q(s_{t+1}, a)$\\
+
+In this way we allow both the target and behaviour policies to improve, target policy being greedy w.r.t. $Q(S, A)$ and behaviour policy being $\epsilon$-greedy w.r.t $Q(S, A)$. The Q learning target is then respectively: $r_{t+1} + \max_{a'} \gamma Q(s_{t+1}, a')$\\
+
+\begin{figure}[h!]
+  \centering
+%   \hspace*{-1cm}  
+  \includegraphics[scale=0.5]{figures/q_learning.PNG}
+  \caption{Q-Learning algorithm
+; Source: Lecture}
+  \label{fig:q_learning}
+\end{figure}
+
+Note that there are no explicit policies here: target policy is implicit in the greedy term $max_a Q(S', a)$ and behaviour policy is the $\epsilon$-greedy version of the target policy. Both policies are updated with the update rule.
+
+\subsection{cliff walking}
+
+\section{Function Approximation}
+
+\subsection{limitations of tabular}
+
+In Tabular Q learning due to the discrete nature of 
+state and action spaces it is harder to represent the real world accurately as the problem of fine discretisation arises: the approximation needs to be accurate enough for meaningful learning. But this can be memory inefficient as for example "in an atari game the unmber of states can be  approx. $10^{30,000}$". \\
+
+Another important limitation affects the exploration ability of the learning agent: each Q entry for subsecquent state-action entries meed to updated independently despite obvious correlation between them.\\
+
+One solution to this is function approximation.
+
+\section{Deep learning}
+
+A neural network consists of multiple layers of interconnected neurons each defined by a weight and bias that are applied to the incoming signal.\\
+
+In supervised learning there's usually a reference that 
+the network is trained against, for example in classification the reference might be a label to an RGB image. The model then learns weights such that the desired outputs are produced on respective inputs. \\
+
+This is achieved through backpropagation and gradient descent where the difference between current weights and desired weights is evaluated using a cost functions and applied until convergence.\\
+
+For example for a dataset with $x_i$ input paired with a $y_i$ label cost function would be: 
+\begin{align}
+    C(\theta, D) = [y_i - f(x_i)]^2
+\end{align}
+
+\section{Deep Q learning}
+
+So our goal now is to approximate the Q-table with a neural network that accepts state and outputs Q(s, a) 
+values for the whole range of actions. Thus we make state space continuous, while action space is still discrete. like in this example:
+
+\begin{figure}[h!]
+  \centering
+%   \hspace*{-1cm}  
+  \includegraphics[scale=0.5]{figures/q_network.PNG}
+  \caption{Example Q network for traversing a 2D space; Source: Lecture}
+  \label{fig:q_network  }
+\end{figure}
+
+\subsection{cost function}
+Tranferring the TD error from equation \ref{eq:td_update} into the context of neural network cost function we get:
+\begin{align}
+    C(\theta, D) = [R + \gamma \max_a Q(S', a) - Q(S, A)]^2
+\end{align}
+\begin{figure}[h!]
+  \centering
+%   \hspace*{-1cm}  
+  \includegraphics[scale=0.5]{figures/dqn_first.PNG}
+  \caption{Deep Q -learning algorithm; Source: Lecture}
+  \label{fig:dqn_first}
+\end{figure}
+\subsection{is it possible for q network to overfit?}
+Like any neural network it can overfit but the random starts nature of LR counteracts that in effect [QnA]
+\section{Experience Replay Buffer}
+
+One limitation of online learning is that one transition needs to be visited many times for the network to learn appropriate weights ("many updates per transition"). \\
+
+"A solution is to create a dataset of all the experienced data so far collected by the agent." The 
+advantage is that any transition can be sampled from the replay buffer and trained on more than once. 
+
+\subsection{Mini batch learning }
+
+Another limitation of deep Q-learning is that since now Q is represented not by a table, but by a continous function, neighbouring state values will affect each other easily due to correlation between them. And if 
+we update the function in a consecutive manner (going by consecutive states in the order they were collected for example) this will cause the  Q-distribution to start changing rapidly and affect the untrained parts of the Q-network and cause uneven learning. \\
+
+One solution is to sample transitions from the replay buffer not in the order they were collected but in random mini-batches. This causes a more uniform, even learning and update of the Q function.  
+
+\begin{figure}[h!]
+  \centering
+%   \hspace*{-1cm}  
+  \includegraphics[scale=0.5]{figures/replay_buffer.PNG}
+  \caption{Deep Q -learning algorithm with replay buffer; Source: Lecture}
+  \label{fig:replay_buffer}
+\end{figure}
+
+\subsection{Prioritised Experience Replay}
+
+On top of sampling transitions in minibatches is a uniform random manner it may be useful to note that some transitions might be more important for learning and 
+sampling them in particular more than others may be more useful. Hence the idea of prioritised experience replay buffer. \\
+
+A way to tell which transitions are more important than others is to see the magnitude of the prediction error $\delta = R + \gamma \max_a Q_{\theta}(S', a) - Q_{\theta}(S, A)$. 
+Intuitively greater error results in greater learning.\\
+
+So each transition is assigned a weight $w_i = |\delta| + \epsilon$, where $\epsilon$ is a small constant ensuring each transition has a probability of being sampled greater than 0. Thus the sampling probability for a transition $i$ is:
+\begin{align}
+    p_i = \frac{w_i^{\alpha}}{\sum_k w^{\alpha}_k}
+\end{align}
+Where $\alpha$ determines how much individual transitions are prioritized over the others with $\alpha = 0$ being equivalent to uniform sampling.\\
+
+It only makes sense to update only the weights for transitions that were sampled, since we already have their $\delta$ error values. For new transitions pushed to the replay buffer, assign the current maximum weight to ensure that they can be sampled and that sufficient exploration is done.
+
+\begin{figure}[h!]
+  \centering
+%   \hspace*{-1cm}  
+  \includegraphics[scale=0.5]{figures/prioritized_buffer.PNG}
+  \caption{Prioritised Experience Replay Algorithm; Source: Lecture}
+  \label{fig:replay_buffer}
+\end{figure}
+\newpage
+
+\section{Target Network }
+
+As we have seen before with mini-batch sampling having an approximated Q function introduces certain challenges. 
+For example when adjacent states are trained on multiple times
+it results in a rocketing effect with the Q function basically "chasing its own tail" in a sense.  
+\begin{figure}[h!h!h!h]
+\centering
+\includegraphics[scale=0.5]{figures/target 1.PNG}
+\includegraphics[scale=0.5]{figures/target 2.PNG}\\
+\includegraphics[scale=0.5]{figures/target 3.PNG}
+\includegraphics[scale=0.5]{figures/target 4.PNG}
+  \caption{Generalisation effect on learning; Source: Lecture}
+  \label{fig:generalisation_curse}
+\end{figure}
+
+This correlation between adjacent states can be tracked down to the $\max_a Q_{\theta}(S', a)$ term in the update step. Hence the 
+extension to DQN is to introduce a separate Target Network $\hat{Q}$ to calculate the prediction error. This allows Q network to learn independently from the generalisation effect. Every now and then \hat{Q} is set to Q.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{figures/target 0.PNG}
+  \caption{Target network; Source: Lecture}
+  \label{fig:target_network}
+\end{figure}
+
+Here's the updated algorithm for Deep Q-learning with target network extension.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{figures/dqn wth target.PNG}
+% \caption{The Universe}
+  \caption{Deep Q-Learning with Target Network; Source: Lecture}
+  \label{fig:target_network_algorithm}
+\end{figure}
+
+\section{Double Deep Q-learning}
+Another issue that still arises is the problem of overestimation when picking the greedy action in the target $R + \gamma \max_a \hat{Q}_{\hat{\theta}}(S' a)$. Target network is a noisy estimation for different action values (for an arbitraty state) and the sampled maximum $\hat{Q}$ value might not be the maximum for the true $Q$ function for the same action. In order to tackle this problem of overestimation 
+further decoupling is introduced in the target term.\\
+
+In Double Deep Q-learning different networks are used to pick the maximum action and estimate its Q value. This on average reduces the amount by which an action is overestimated since an unusually high value in one network is unlikely to be such in the other. thus the new error in the update step in the algorithm is either:
+\begin{align}
+    [R + \gamma Q_{\theta}(S', \text{arg}\max_a\ \hat{Q}_{\hat{\theta}}(S', a)) - Q_{\theta}(S, A)]^2
+\end{align}
+or:
+\begin{align}
+    [R + \gamma \hat{Q}_{\hat{\theta}}(S', \text{arg}\max_a\ Q_{\theta}(S', a)) - Q_{\theta}(S, A)]^2
+\end{align}
+
+
+% \subsection{3 network architectures}
+% \subsection{REINFORCE ALGORITHM}
+% \subsection{deterministic vs stsochastic policies}
+% \subsection{reducing variance}
+% \subsection{model free vs model based}
+% \subsection{planning in discrete spaces (irrelevant to LoRa) }
+% \subsection{Cross Entropy }
+% \subsection{method for continuous spaces (relevant?)}
+% \subsection{model predictive control}
+
+
+
+
+
+
+
+
+
+
 \chapter{Learning Model}
 \section{Distributed Learning}
 
