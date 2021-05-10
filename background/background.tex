@@ -278,27 +278,40 @@ state $S_{t+1}$ and a new reward $R_{t+1}$:
   \label{fig:closed_loop}
 \end{figure}\\  
 
-\section{Terminology and symbols}
-Here I'll explain the main bulk of terminology specific to reinforcement learning that we'll need for the rest of this chapter.\\
+% \section{Terminology and symbols}
+% Here I'll explain the main bulk of terminology specific to reinforcement learning that we'll need for the rest of this chapter.\\
 
-Rewards, Action, States, Policy, Value function [DO LATER]
+% Rewards, Action, States, Policy, Value function [DO LATER]
  
-\section{Markov Process}
+\section{Markov Chain}
 
-Markov Chain is essentially a way to model stochastic processes with
-particular properties. As the name suggests it is a chain of states
-that describe the process we are modeling. Using an exmaple from this article \cite{markov_chain_article}, if we are to model weather at a particular region on a daily basis, we could have 2 states: Sunny and Rainy. Now what interests us are the transitions between these 2 states. We could model them as a simple random process such that the probability of it being Sunny after being Rainy was 0.5 and the probability of it being Rainy after being Sunny was 0.1. Furthermore if we assume the \textbf{memorylessness} property of this model i.e. that the weather tomorrow is \textbf{independent} of the weather yesterday and only depends on the weather today then we could effectively derive the other 2 missing probabilites for the weather staying Sunny (1 - 0.1 = 0.9) or Rainy (1 - 0.5 = 0.5) for 2 days in a row \cite{markov_chain_article}.
+Markov Chain is essentially a way to model stochastic
+processes with
+particular properties. As the name suggests it is a chain of
+states that describes the process we are modeling. Using an
+exmaple from this article \cite{markov_chain_article}, if we
+are to model weather at a particular region on a daily basis,
+we could have 2 states: Sunny and Rainy. Now what interests us
+are the transitions between these 2 states. We could model
+them as a simple random process such that the probability of
+it being Sunny after being Rainy was 0.5 and the probability
+of it being Rainy after being Sunny was 0.1. Furthermore if we
+assume the \textbf{memorylessness} property of this model i.e.
+that the weather tomorrow is \textbf{independent} of the
+weather yesterday and only depends on the weather today then
+we could effectively derive the other 2 missing probabilites
+for the weather staying Sunny (1 - 0.1 = 0.9) or Rainy (1 -
+0.5 = 0.5) for 2 days in a row \cite{markov_chain_article}. \\This example is demonstrated in figure \ref{fig:weather}.
 
-\begin{figure}[h!]
+\begin{figure}[H]
   \centering
 %   \hspace*{-1cm}  
   \includegraphics[scale=0.7]{figures/markov_weather.PNG}
-  \caption{Closed-loop of reinforcement learning. Source: \cite{markov_chain_article}}
+  \caption{Markov chain for weather forecasting. Source: \cite{markov_chain_article}}
   \label{fig:weather}
 \end{figure}
 
-Thus we can describe a Markov process through a set of states S and a probability transition matrix P satisfying the \textbf{Markov property}
-(memorylessness) [CITE]:
+Thus we can describe a Markov process through a set of states S and a probability transition matrix P satisfying the \textbf{Markov property} (memorylessness) \cite{markov_chain_article}:
 \begin{align}
     P_{ss'} = P[S_{t+1} = s' | S_{t} = s]\\
     \sum_{s' \in S} P_{ss'} = 1
@@ -306,236 +319,223 @@ Thus we can describe a Markov process through a set of states S and a probabilit
 
 \section{Markov Reward Process}
 Markov Reward Process is a Markov Process that 
-has a reward value tied to each state transition \cite{lecture_lets_go_markov}. We can describe these rewards through another matrix R such that:
+has a reward value tied to each state transition \cite{lecture_lets_go_markov}. We can describe these rewards through another vector R such that:
 \begin{align}
-    R_{s} = E[r_{t+1} | S_{t} = s]
+    R_{s} = E[r_{t+1} | S_{t} = s] \label{eq:return_matrix}
 \end{align}
+
 This is the reward that the agent leaving state s receives upon transitioning at timestep $t+1$.\\
 
-The process is also defined by a discount factor $\gamma \in [0, 1]$. We need it to define the return value which is the estimated sum of all rewards starting from time-step t as such:
+The process is also defined by a discount factor $\gamma \in [0, 1]$ \cite{lecture_lets_go_markov}. We need it to define the discounted total return value $R_t$ which is the estimated sum of all immediate rewards $r$ starting from time-step t:
 \begin{align}
-    R_t = r_{t+1} + \gamma r_{t+2} + \gamma ^2 r_{t+3} + ... = \sum^{\infty}_{k=0}\gamma^{k}r_{t+k+1} 
+    R_t = r_{t+1} + \gamma r_{t+2} + \gamma ^2 r_{t+3} + ... = \sum^{\infty}_{k=0}\gamma^{k}r_{t+k+1} \label{eq:return}
 \end{align}
 
 The discount factor allows the agent to put different weight on immediate and distant rewards,
-with small $\gamma$ being more concerned with immediate results and large $\gamma$ looking far into the future. 
+with small $\gamma$ being more concerned with immediate results and large $\gamma$ looking far into the future \cite{lecture_lets_go_markov}. 
 
 % [WHY DISCOUNTING IS A GOOD IDEA SLIDE 56 https://materials.doc.ic.ac.uk/view/2021/70028/Course\%20Material/7]
-\subsection{State Value Function}
-As the definition from lectures states: "The state value function v (s) of an MRP is the expected return R
-starting from state s at time t":
-
+\section{State Value Function}
+State Value Function $v$ is the estimate of the total return one expects to retrieve starting from a state $s$ at time $t$ in the context 
+of a Markov Reward Process \cite{lecture_lets_go_markov}.
 \begin{align}
-    v(s) = \EX[R_t | S_t = s]
+    v(s) = \EX[R_t | S_t = s] \label{eq:value_function_def}
 \end{align}
 
-If we expand the $R_t$ term and applying the Tower Rule and Law of Total we will eventually [INPUT derivation] get 
+If we expand the $R_t$ term as in \ref{eq:return} and apply the Law of Total expectation along with definition from \ref{eq:return_matrix} we get the following derivation \cite{lecture_lets_go_markov}:
+\begin{align*}
+    v(s) &= \EX[R_t | S_t = s]\\
+         &= \EX[r_{t+1} + \gamma r_{t+2} + \gamma ^2 r_{t+3} + ... | S_t = s] & \text{\ref{eq:return} definition} \\
+         &= \EX[r_{t+1} + \gamma (r_{t+2} + \gamma r_{t+3} + ...) | S_t = s]\\
+         &= \EX[r_{t+1} + \gamma R_{t+1} | S_t = s] & \text{\ref{eq:return} definition} \\
+         &= \EX[r_{t+1} + \gamma \EX[R_{t+1} | S_t = s] | S_t = s] & \text{Law of Total expectation} \\
+         &= \EX[r_{t+1} + \gamma v(S_{t+1})| S_t = s] \label{eq:value_function} & \text{definition \ref{eq:value_function_def}} \\
+         &= R_s + \gamma \sum_{s' \in S} P_{ss'}v(s') & \text{expanding $\EX$ term}
+\end{align*}
 
+If we convert the last line of the above derivation into vector notation to account for n states (respectively n dimensions):
 \begin{align}
-    v(s) &= \EX[r_{t+1} + \gamma v(S_{t+1})| S_t = s] \label{eq:value_function}\\
-    &= R_s + \gamma \sum_{s' \in S} P_{ss'}v(s')
+    \textbf{v} = R + \gamma P \textbf{v}
 \end{align}
-
-And applying this to n states
-\begin{align}
-    \textbf{v} = R + \gamma P \textbf{}
-\end{align}
-
-where the vector \textbf{v} is n-dimensional.\\
 
 A direct solution to this would be 
 \begin{align}
     \textbf{v} = (\bbone - \gamma P)^{-1}R
 \end{align}
 
-But since matrix inversion is computationally very expensive it is often not feasible to find \tetxbf{v} that way for small MRPs. We will look into iterative solutions
-for this problem: Dynamic programming, Monte-Carlo evaluation and Temporal Difference Learning.
+Due to matrix inversion being an expensive computational operation, this kind of approach of estimating a state value function is not preferred and only works for relatively small MRPs \cite{lecture_lets_go_markov}. There are, however iterative approaches to this problem, such as Dynamic Programming, Monte-Carlo evaluation and Temporal Difference Learning.
 
-\subsection{Policy}
-According to the definition from the lecture: "A policy $\pi(a, s) = P[A_t = a | S_t = s]$ is the conditional probability distribution to execute an action $a \in A$ given that one is in state $s \in S$ at time t"
+\section{Policy}
+As mentioned above an agent within an environment is capable of taking an action a. The sequence of actions taken under 
+various conditions is defined by the agent's policy.
+A policy $\pi$ is typically a conditional probability distribution
+that allows an agent to choose its next action in a defined state at a defned time \cite{lecture_lets_go_markov}:
+\begin{align}
+    \pi_t(a, s) = P[A_t = a | S_t = s]
+\end{align}
 
 \section{Markov Decision Process}
-We can now define what Markov Decision Process is, it is defined by a State Space S; action space A, transition probablity matrix $P^{a}_{ss'} = p(s_{t+1}| s_t, a_t)$, discount factor $\gamma \in [0, 1]$, reward function $R^{a}_{ss'}$ and policy $\pi$
+
+Combining Markov Reward Process with a policy yields Markov Decision Process, defined by a state space S; action space A, transition probablity matrix $P^{a}_{ss'} = p(s_{t+1}| s_t, a_t)$, discount factor $\gamma \in [0, 1]$, reward function $R^{a}_{ss'}$ and policy $\pi$ \cite{lecture_mdp}. 
 
 \subsection{Value Function}
-According to the definition from lectures: Value function for MDPs is:
+If we now account for an MDP policy $\pi$ and expand the original definition \ref{eq:value_function_def} \cite{lecture_mdp}:
+\begin{align*}
+    V^{\pi}(s) &= \EX_{\pi}[R_{t} | S_t = s] \\
+    &= \EX[\sum^{\infty}_{k=0} \gamma^k r_{t+k+1} | S_t = s]\\
+    &= \EX[r_{t+1} + \gamma \sum^{\infty}_{k=0} \gamma^k r_{t+k+2} | S_t = s]\\
+    &= \sum_{a \in A} \pi(s, a) \sum_{s' \in S} P^{a}_{ss'} (R^{a}_{ss'} + \gamma V^{\pi}(s')) &\text{expanding $\EX$} \label{value_function_expansion}
+\end{align*}
 
-\begin{align}
-    V^{\pi}(s) = \EX_{\pi}[R_{t} | S_t = s] = \EX[\sum^{\infty}_{k=0} \gamma^k r_{t+k+1} | S_t = s]
-\end{align}
+where 
+\begin{align*}
+    \pi(a, s) &= P[a|s] &\text{chosen action}\\
+    P^{a}_{ss'} &= P[s' | s, a] &\text{transition probability}\\
+    R^{a}_{ss'} &= r(s, a, s') &\text{immediate reward}
+\end{align*}
 
-"where $R_t$ is a discounted total return and the $r_{t+k+1}$" are immediate rewards.
-
-\begin{align}
-    V^{\pi}(s) &= \EX_{\pi}[R_{t} | S_t = s] \\ 
-    &= \EX[\sum^{\infty}_{k=0} \gamma^k r_{t+k+1} | S_t = s] \\
-    &= ... \\
-    &= \sum_{a \in A} \pi(s, a) \sum_{s' \in S} P^{a}_{ss'} (R^{a}_{ss'} + \gamma V^{\pi}(s'))
-\end{align}
-
-"Thus we can see the self-consistency of the MDP value function and crucially $V^{\pi}$ has a unique solution"
-
+Majority of all the reinforcement learning algorithms introduced in this chapter later down below will rely on this "recursive consistency" \cite{lecture_mdp} property of state value functions. 
 \subsection{Policy Evaluation}
-"Policy Evaluation is the computation of a Value function values for an arbitraty policy". One such evaluation method is Iterative Policy Evaluation where Bellman's equation is sytematically applied over and over again until hopefully Value Function converges for each state 
-
+Now we need to find a systematic way of estimating the value
+function for a given MDP for an arbitrary policy. This process is called Policy Evaluation \cite{lecture_mdp}. The most obvious method is to apply the Bellman equation over and over again, until the value function converges as in \ref{fig:pia}.
+\begin{figure}[H]
+  \centering
+%   \hspace*{-1cm}  
+  \includegraphics[scale=0.7]{figures/iterative_policy_evaluation.PNG}
+  \caption{Iterative Policy Algorithm; Source: \cite{lecture_mdp}}
+  \label{fig:pia}
+\end{figure}
 \subsection{State Action Value Function}
-According to lecture "State Action Value Function defines How good is it to be in a given state and take a given action when you follow a policy $\pi$:
-
+As an extension to the state value function we introduce the state-action value function $Q$ that evaluates the expected return for taking action $a$ at a state $s$ subject to policy $\pi$ \cite{lecture_mdp} :
 \begin{align}
     Q^{\pi}(s, a) = \EX[R_t | S_t = s, A_t = a] = \EX[\sum^{\infty}_{k=0} \gamma^k r_{t+k+1} | S_t = s, A_t = a]
 \end{align}
 
-And we can also derive the relationship between the state value and state-action value functions:
-
+The relationship between state value and state-action value functions is as follows:
 \begin{align}
     V^{\pi}(s) = \sum_{a \in A} \pi(s, a) Q^{\pi}(s, a) 
 \end{align}
 
 \subsection{Optimal Value and Optimality equations}
-If we are to optimize the state value function V we are to determine the optimal ploicy. According to lectures Optimal Value Function is:
+If we are to optimize the state value function V we are to determine the optimal ploicy. The Optimal Value Function is \cite{lecture_mdp}:
 \begin{align}
     V^*(s) = \max_{\pi} V^{\pi}(s)   \forall s \in S
 \end{align}
-And respectively for the state-action value function (input) 
 
-Applying to previous equation (4.9):
+Following similar derivation as in \ref{value_function_expansion}:
 \begin{align}
     V^*(s) = \max_{a}\sum_{s'} P^{a}_{ss'} (R^{a}_{ss'} + \gamma V^{*}(s'))
 \end{align}
 
-Respectively for the state-action value function:
+Respectively for the optimal state-action value function:
 \begin{align}
-    Q^*(s, a) = \sum_{s'} P^{a}_{ss'} (R^{a}_{ss'} + \gamma Q^{*}(s', a'))
+    Q^*(s, a) = \sum_{s'} P^{a}_{ss'} (R^{a}_{ss'} + \gamma \max_{a'}Q^{*}(s', a'))
 \end{align}
 
-\subsection{Assumptions}
+Applying the Bellman Optimality Equation is one way to solve the problem of finding the optimal policy. But this relies on 3 assumptions: the environment model is well-known, we have computational resources to brute force the solution and of course the Markov property. So as often happens approximate solutions are searched \cite{lecture_mdp}.
 
-Applying the Bellman Optimality Equation is one way to solve the problem of finding the optimal policy. But this relies on 3 assumptions: the environment model is well-known, we have computational resources to brute force the solution and of course the Markov property. So as often happens approximate solutions are searched.
-
-\subsection{Convergence Proof}
-"Theorem (Bellman Optimality Equation convergence theorem):\\
-
-For an MDP with a finite state and action space:\\
- - The Bellman Optimality Equations have a unique solution and the values produces by the value iteration converge to the solution of  the Bellman equations"\\
- 
- This can be proved through a Contraction Mapping Theorem.
+\subsection{Optimality Convergence Theorem}
+% "Theorem (Bellman Optimality Equation convergence theorem):\\
+% For an MDP with a finite state and action space:\\
+%  - The Bellman Optimality Equations have a unique solution and the values produces by the value iteration converge to the solution of  the Bellman equations"\\
+%  This can be proved through a Contraction Mapping Theorem.
 
 \section{Dynamic Programming}
-Dynamic Programming typically refers to a set of algorithms targeted at solving problems within well-defined systems such as Markov Decision Process. [CITE] 
-
-The term dynamic programming (DP) refers to a collection of algorithms that can be used to compute optimal policies given a perfect model of the environment as a Markov Decision Process (MDP). [CITE]
+Dynamic Programming typically refers to a set of algorithms targeted at solving problems within well-defined systems such as Markov Decision Process \cite{lecture_dp}. Typically Dynamic Programming refers to solving a problem by breaking it into smaller sub-problems and solving them recursively.
 
 \subsection{Policy Improvement Theorem}
 
-As the lecture states the theory is as follows:\\\\
-
-"Let $\pi$ and $\pi'$ be any two deterministic policies such that $\forall s \in S$"
-
+According to \cite{lecture_dp} the theorem is as follows: given policies $\pi$ and $\pi'$ such that $\forall s \in S$
 \begin{align}
     Q^{\pi}(s, \pi'(s)) \geq V^{\pi}(s).
 \end{align}
 
-"Then $\pi'$ must be as good or better than $\pi$":
+This implies that $\pi'$ is at least as good as $\pi$:
 \begin{align}
     V^{\pi'}(s) \geq V^{\pi}(s), \forall s \in S
 \end{align}
 
-The theorem can be proved in a series of expansions [EXPAND ON THAT, CITE]
+The theorem can be proved in a series of expansions \cite{lecture_dp}.
 
 \subsection{Policy Iteration}
+Policy Improvement Theorem allows us to build an improvement mechanism for policies. It is possible to build a loop that
+continuously updates the policy to an optimum. In this way we can find the optimal state value function. The process in which we combine Policy Evaluation and Policy Improvement is called Policy Iteration \cite{lecture_dp}.
 
-As the lecture notes state:
+% \subsection{Bellman's Principle of Optimality}
+% As the lectures states Bellman's Principle of Optimality:\\
 
-"Once a policy, $\pi$ , has been improved using $V^{\pi}$ to yield a better policy $\pi'$, we can compute $V^{\pi'}$ and improve it again to $\pi''$, to yield an even better $V^{\pi''}$. We can thus obtain a sequence of monotonically improving policies and value functions. This way of finding an optimal policy is called policy iteration."
-
-\subsection{Bellman's Principle of Optimality}
-
-As the lectures states Bellman's Principle of Optimality:\\
-
-A policy $\pi(a, s)$ achieves the optimal value from state $s$, \vpidash{s} = $V^{*}(s)$, if and only if:\\ 
-1) For any state $s'$ reachable from s, i.e. $\exists a : p(s', s, a) > 0$\\
-2) $\pi$ achieves the optimal value from state s', \vpi{s'} = \voptimal{s'}
+% A policy $\pi(a, s)$ achieves the optimal value from state $s$, \vpidash{s} = $V^{*}(s)$, if and only if:\\ 
+% 1) For any state $s'$ reachable from s, i.e. $\exists a : p(s', s, a) > 0$\\
+% 2) $\pi$ achieves the optimal value from state s', \vpi{s'} = \voptimal{s'}
  
-\subsection{Policy Iteration Algorithms}
+% \subsection{Policy Iteration Algorithms}
 
 \begin{figure}[h!]
   \centering
 %   \hspace*{-1cm}  
-  \includegraphics[scale=0.5]{figures/policy_iteration_algorithm.PNG}
-  \caption{Policy Iteration Algorithm; Source: Lecture}
+  \includegraphics[scale=0.6]{figures/policy_iteration_algorithm.PNG}
+  \caption{Policy Iteration Algorithm; Source: \cite{lecture_dp}}
   \label{fig:pia}
 \end{figure}
 
-\subsection{Value iteration}
+\subsection{Value Iteration Algorithm}
 
-There are multiple ways to stop the iteration: $\epsilon$-convergence of value function or stopping after k iteratoins, or even just after one sweep of state space $S$ turning Bellman Optimality Equation into an update rule. 
-
-\begin{figure}[h!]
+There are multiple ways to define the Policy Evaluation loop stop conditions: $\epsilon$-convergence of value function or stopping after k iterations, or even just after one sweep of state space $S$ turning Bellman Optimality Equation into an update rule, thus obtaining the Value Iteration Algorithm \cite{lecture_dp}. 
+\begin{figure}[H]
   \centering
 %   \hspace*{-1cm}  
   \includegraphics[scale=0.5]{figures/value_iteration_algorithm.PNG}
-  \caption{Value Iteration Algorithm; Source: Lecture}
+  \caption{Value Iteration Algorithm; Source: \cite{lecture_dp}}
   \label{fig:via}
 \end{figure}
 
-\subsection{What DP gives us and what are its limits}
+\subsection{Bootstrapping}
 
-DP works well for moderate not resource hungry type of problems and suffers from the curse of dimensionality once the complexity increases. It also requires full knowledge of the Markov Decision Process which is not always available in pratice. Despite that it introduces a useful concept: "Bootstrapping" i.e. "updating values estimates based on other estimates" [LECTURE/BARTO] So these are the issues that Model Free Control learning addresses.
-
-
-#######################################################
+DP works well for moderate not resource hungry type of problems and suffers from the curse of dimensionality once the complexity increases. It also requires full knowledge of the Markov Decision Process which is not always available in practice. Despite that it introduces a useful concept: "bootstrapping" i.e. "updating values estimates based on other value estimates" \cite{lecture_dp}. To address the weaknesses
+of dynamic programming Model-Free Learning comes into play.
 
 \section{Model-Free Learning}
-Now we are going to learn to estimate and optimize our value function with an unknown MDP unlike in Dynamic Programming. 
+Model-Free learning as its name suggests focuses on way
+of solving a problem without the need of full model knowledge,
+like dynamic programming. 
+\subsection{Monte Carlo (MC) methods}
 
-\subsection{Monte Carlo methods}
-
-MC methods learning directly from episodes of experience,
-without MDP knowledge, episodes are complete, so no bootstrapping is necessary. The basic idea nehind it is calculating mean return of the episodes, but under the assumption that traces of episodes end in a terminal state.[CITE]
+MC methods learn directly from real experience. No model knowledge is required because learning is conducted on finished traces of episodes that end in a terminal state (and respectively bootstrapping is not needed as well) \cite{lecture_mfl} . The basic idea is to calculate the average return per episode.
 
 \subsection{MC Policy evaluation}
-
-\begin{figure}[h!]
+If we're to implement Policy Evaluation in the context of Monte-Carlo:
+\begin{figure}[H]
   \centering
 %   \hspace*{-1cm}  
   \includegraphics[scale=0.5]{figures/mc_policy_evaluation.PNG}
-  \caption{MC Policy Evaluation Algorithm; Source: Lecture}
+  \caption{MC Policy Evaluation Algorithm; Source: \cite{lecture_mfl}}
   \label{fig:via}
 \end{figure}
 
-Here you can see that value function is approximated with an average returns of states. This is a First-Visit MC algorithm, so only the first occurence of a state is counted toward the estimate. In Every-visit MC algorithm every occurence is recorded.[CITE]
+Here you can see that value function is approximated with an average returns of states. This is a First-Visit MC algorithm, so only the first occurence of a state is counted toward the estimate. In Every-visit MC algorithm every occurence is recorded \cite{lecture_mfl}.
 
-
-
-\subsection{Batch \& Online and incremental updates}
 We can update the policy after every episode or after
 sampling a trace of 20 for example. the former is called online MC and the latter Batch MC.
 
 \subsection{Incremental Monte Carlo updates}
-We can devise an incremental update from the normal definition of 'average':
-
+We can devise an incremental update from the normal definition of 'mean' as follows \cite{lecture_mfl} :
 \begin{align}
     \mu_k = \mu_{k - 1} + \frac{1}{k} (x_k - \mu_{k - 1})
 \end{align}
 
-This is an important milestone now, since we can keep the running mean without storing traces of episodes. \\
+This is an important milestone, since we can keep the running mean without storing traces of episodes. \\
 
-1) Update $V(s)$ incrementally after episode (s, a, r, s')\\
+In the same way we can update the state value function $V(s)$ incrementally after each new episode (s, a, r, s'):
 \begin{align}
     V(s_t) \longleftarrow V(s_t) + \frac{1}{N(s_t)}(R_t - V(s_t))
 \end{align}
 
-"Moreover if the world is non-stationary, it can be useful to track a running mean i.e. by gradually forgetting old episodes" [LECTURE]
-
+Moreover one can set the $N(s_t)$ value (i.e. current number of episodes) to another number $n$, such that $n < N(s_t)$, by basically narrowing down the averaging operation to the last n episodes. This is in effect turns into the rate of "forgetting old episodes" \cite{lecture_mfl} $\alpha$.
 \begin{align}
     V(s_t) \longleftarrow V(s_t) + \alpha (R_t - V(s_t)) \label{eq:mc_increment}
 \end{align}
 
-"The parameter $\alpha$ controls the rate of forgetting old episodes." BAsically if you'r echaning the term $N(s_t)$ to some value n, you're calculating the average over the last n data points so you can specify that just by tweaking that value. hence alpha — "rate of forgetting old episodes"
-
-\section{Temporal Difference}
-
-\subsection{Combine MC and DP}
+\subsection{Temporal Difference}
 We have now introduced to different approaches to solving 
 the reinforcement learning problem of finding the optimal 
 Value function for a problem at hand: Dynamic Programming and 
@@ -543,21 +543,19 @@ Monte-Carlo. Dynamic programming achieves the optimal solution
 through "bootstrapping" i.e. estimating state values through
 neighbouring states. Monte-Carlo methods calculate the estimates through sampling directly from experience i.e. traces of episodes. \\
 
-\subsection{Temporal Difference}
-Temporal Difference is what combines DP and MC. Like MC It does not require knowledge of Markov Decision Process at hand and 
-learns from episodes of experience. Like DP it makes use of bootstrapping.
+Temporal Difference (TD) is what combines DP and MC: like MC It does not require knowledge of Markov Decision Process at hand and 
+learns from episodes of experience and like DP it makes use of bootstrapping \cite{lecture_mfl}.
 
 \begin{figure}[h!]
   \centering
 %   \hspace*{-1cm}  
   \includegraphics[scale=0.5]{figures/TD_diagrams.PNG}
-  \caption{Temporal Difference; Source: Lecture}
+  \caption{Temporal Difference; Source: \cite{lecture_mfl}}
   \label{fig:td}
 \end{figure}
 
 \subsection{Update rule}
-
-here's the update rule for Temporal Difference:
+The combination of DP and MC is manifested in the value function update rule for Temporal Difference:
 \begin{align}
   V(s_t) \longleftarrow V(s_t) + \alpha (r_{t+1} + \gamma V(s_{t+1}) - V(s_t)) \label{eq:td_update}
 \end{align}
@@ -575,56 +573,58 @@ Here's the TD value estimation algorithm with the hew update rule combining boot
 \begin{figure}[h!]
   \centering
 %   \hspace*{-1cm}  
-  \includegraphics[scale=0.5]{figures/TD_value_estimation.PNG}
-  \caption{Temporal Difference value estimation algorithm; Source: Lecture}
+  \includegraphics[scale=0.6]{figures/TD_value_estimation.PNG}
+  \caption{Temporal Difference value estimation algorithm; Source: \cite{lecture_mfl}}
   \label{fig:td}
 \end{figure}
 
 \subsection{Bias-Variance tradeoff for TD and MC}
-«In statistics and ML the bias Variance tradeff is that you have to compromise between high variance + low bias and low variance + high bias». \\
+In statistics the Bias-Variance tradeoff typically refers to 
+a compelled compromise between variance and bias, i.e. either high variance and low bias or low variance and high bias. \\
 
-We can see that $R_t = r_{t+1} + \gamma r_{t+2} + \gamma ^2 r_{t+3} + ...$ is an unbiased estimate of $V^{\pi} (s_t)$ by the definition of the state value function itself. So if the update rule for TD was $r_{t+1} + \gamma V^{\pi}(s_{t+1})$ it would be an unbiased estimate of $V^{\pi}(s_{t})$ (given $V^{\pi}(s_{t+1})$ is the true value function). But what we actually have is an estimate of the $V^{\pi}(s_{t+1})$: $r_{t+1} + \gamma V(s_{t+1})$ and so the expression for TD target is the biased estimate of $V^{\pi}(s_t)$. \\
+We can see that $R_t = r_{t+1} + \gamma r_{t+2} + \gamma ^2 r_{t+3} + ...$ is an unbiased estimate of $V^{\pi} (s_t)$ by the definition \ref{eq:value_function_def} of the state value function itself. So if the update rule for TD was $r_{t+1} + \gamma V^{\pi}(s_{t+1})$ it would be an unbiased estimate of $V^{\pi}(s_{t})$ (given $V^{\pi}(s_{t+1})$ is the true value function). But what we actually have is an estimate of the $V^{\pi}(s_{t+1})$: $r_{t+1} + \gamma V(s_{t+1})$ and so the expression for TD target is the biased estimate of $V^{\pi}(s_t)$ \cite{lecture_mfl}. \\
 
 Now if we compare TD and MC methods we can see that TD has some bias with MC being generally unbiased, at the same time TD has much lower variance since the estimate is based on one transition (s, a, r, s'), while MC return estimate depends on many transitions (trace of episodes). The immediate implications of this is that MC methods have good convergence,
-if the simulation runs for long enough but TD is usually more efficient, so it requres less time to learn the value function.
-But due to its nature it is more sensitive to the initalization values for value function.
+if the simulation runs for long enough but TD is usually more efficient, so it requres less time to learn the value function \cite{lecture_mfl}.
+% But due to its nature it is more sensitive to the initalization values for value function.
 
 \section{Model Free Control }
-Now that we know how to estimate the value function with no model knowledge. The next step is to learn to optimize it and learn an optimal policy. \\
+Now we know how to estimate the value function with no model knowledge. The next step is to learn to optimize it and learn the optimal policy. 
 
-We cannot refer to MDP in 2 scenarios: MDP is simply unknown or MDP is well defined but too big to generalise/estimate (Curse of dimensionality).
+% We cannot refer to MDP in 2 scenarios: MDP is simply unknown or MDP is well defined but too big to generalise/estimate (Curse of dimensionality).
 
-\subsection{Generalised Policy Iteration on State Value function} one approach is Generalised Policy Iteration (similar in effect to the policy iteration above in figure \ref{fig:pia}). But we cannot apply the exact Policy improvement as before since the update rule for the policy being improved if you remember is: 
+\subsection{Generalised Policy Iteration on State Value function} 
+One approach is Generalised Policy Iteration (similar in effect to the policy iteration above in figure \ref{fig:pia}). But we cannot apply the exact Policy improvement as before since the update rule for the policy being improved if you remember is: 
 \begin{align}
     \pi(s) \leftarrow arg \max_{a} \sum_{s'} P^{a}_{ss'} [R^{a}_{ss'} + \gamma V(s')]
 \end{align}
-Here we need the knowledge of the state transition probabilities $P$ and the immediate reward function $R$. This is beyond our knowledge in a Model-free situation. Thus we can choose the policy greedily based on the state-action value function $Q(s, a)$ instead, which fits our Model-free narrative:  
+Here we need the knowledge of the state transition probabilities $P$ and the immediate reward function $R$. This is beyond our knowledge in a Model-free situation. Thus we can choose the policy greedily based on the state-action value function $Q(s, a)$ instead, which fits our Model-free narrative \cite{lecture_mfc}:  
 \begin{align}
     \pi(s) \leftarrow arg \max_{a} Q(s, a) 
 \end{align}
-"Formally there's no difference between transitions between states and value of states and transitions between state-action pairs and state-action value function respectively. Both can be seen as Markov chains with a reward process."
-\subsection{MC Policy improvement sketch}
+% "Formally there's no difference between transitions between states and value of states and transitions between state-action pairs and state-action value function respectively. Both can be seen as Markov chains with a reward process."
+\subsection{MC Policy improvement theorem}
 
-Similarly to how Policy Improvement Theorem can be proven for Dynamic Programming, it can be shown that $Q^{\pi_k}(s, \pi_{k+1}(s)) \geq V^{\pi_k}(s)$. "Thus each subsequent policy is better than the previous one and this means convergence to optimal policy and value functions." 
+Similarly to how Policy Improvement Theorem can be proven for Dynamic Programming, it can be shown that $Q^{\pi_k}(s, \pi_{k+1}(s)) \geq V^{\pi_k}(s)$ \cite{lecture_mfc}. 
+% "Thus each subsequent policy is better than the previous one and this means convergence to optimal policy and value functions." 
 
-\subsection{on policy off policy}
+\subsection{On and Off policies}
 
-One of the important prerequisites for the above proof is the 
-«Exploring starts» assumption, i.e. the agent needs to learn the optimal policy by infinitely selecting all possible actions. There are 2 ways to ensure the agent continues to 
-explore all options: on-policy and off-policy methods. \\
+% One of the important prerequisites for the above proof is the 
+% «Exploring starts» assumption, 
 
-\textbf{On-policy} "methods evaluate and optimize the policy 
-being used to choose actions. Evaluating policy $\pi$ from experience sampled from $\pi$"\\
+% i.e. the agent needs to learn the optimal policy by infinitely selecting all possible actions. There are 2 ways to ensure the agent continues to 
+% explore all options: on-policy and off-policy methods. \\
 
-\textbf{Off-policy} "methods evaluate and optimize a separate  policy, differrent from the one that generates the data. Learn about policy $\pi$ from experience sampled from $\pi'$"
+\textbf{On-policy} methods use one policy to estimate value functions and choose actions (i.e. generate data), while \textbf{off-policy} methods separate these into 2 policies \cite{lecture_mfc}. 
 
-\subsection{Soft control}
+\subsection{On-policy soft control}
 
-"Soft policies have a property such that all actions have a chance to be explored, i.e. $\pi(a, s) > 0 \forall s \in S, \forall a \in A.$\\
+Soft policies have a property such that all actions have a chance to be explored, i.e. $\pi(a, s) > 0 \forall s \in S, \forall a \in A.$\\
 
 A form of soft-policies are $\epsilon-$greedy policies, where 
 you can adjust a parameter $\epsilon$ to weigh a particular action such that it has a higher probability of being chosen,
-while all the other actions are equally probable (relative to each other):\\\\
+while all the other actions are equally probable (relative to each other) \cite{lecture_mfc}:\\\\
 $\epsilon$-greedy policy with $\epsilon \in [0, 1]$:
 \begin{align}
     \pi(s, a) = \begin{cases} 
@@ -632,45 +632,49 @@ $\epsilon$-greedy policy with $\epsilon \in [0, 1]$:
         \frac{\epsilon}{|A(s)|}, \text{ if }  a \neq a^*
     \end{cases}   
 \end{align}
-\subsection{"On-policy e-greedy first-visit MC control algorithm"}
+
+\subsection{Monte Carlo Control algorithm}
+
+Now adding the policy update to the MC POlicy Evaluation algorithm:
+
 \begin{figure}[h!]
   \centering
 %   \hspace*{-1cm}  
   \includegraphics[scale=0.5]{figures/fv_greedy_mc_control.PNG}
-  \caption{On-policy $\epsilon$-greedy first-visit MC control algorithm; Source: Lecture}
+  \caption{On-policy $\epsilon$-greedy first-visit MC control algorithm; Source: \cite{lecture_mfc}}
   \label{fig:fv_mc_greedy}
 \end{figure}
 \newpage
-\subsection{convergence}
+\subsection{Policy Convergence}
 
-Greedy in the Limit with Infinite Exploration (GLIE) is a set of conditions, that if satisfied ensure convergence of the policy. 
+"Greedy in the Limit with Infinite Exploration" \cite{lecture_mfc} (GLIE) defines the convergence properties of a given policy under certain conditions. 
 
-\subsection{batch learning}
+% \subsection{batch learning}
 
-Like before there are 2 MC approaches: batch learning and online learning
+% Like before there are 2 MC approaches: batch learning and online learning
 
-\begin{figure}[h!]
-  \centering
-%   \hspace*{-1cm}  
-  \includegraphics[scale=0.5]{figures/mc_batch_greedy.PNG}
-  \caption{MC Batch Learning to Control; Source: Lecture}
-  \label{fig:mc_batch_greedy}
-\end{figure}
-\begin{figure}[h!]
-  \centering
-%   \hspace*{-1cm}  
-  \includegraphics[scale=0.5]{figures/mc_iterative_greedy.PNG}
-  \caption{MC Iterative Learning to Control; Source: Lecture}
-  \label{fig:mc_iterative_greedy}
-\end{figure}
+% \begin{figure}[h!]
+%   \centering
+% %   \hspace*{-1cm}  
+%   \includegraphics[scale=0.5]{figures/mc_batch_greedy.PNG}
+%   \caption{MC Batch Learning to Control; Source: Lecture}
+%   \label{fig:mc_batch_greedy}
+% \end{figure}
+% \begin{figure}[h!]
+%   \centering
+% %   \hspace*{-1cm}  
+%   \includegraphics[scale=0.5]{figures/mc_iterative_greedy.PNG}
+%   \caption{MC Iterative Learning to Control; Source: Lecture}
+%   \label{fig:mc_iterative_greedy}
+% \end{figure}
 
-\subsection{summary }
-one of the issues in MC is sufficient exploration of all available actions. In simulated environments this issues can be tackled with randomness for state-action values at the start of  the learning process but harder to arrange in learning from real experience. \\
+% \subsection{MC summary}
+% one of the issues in MC is sufficient exploration of all available actions. In simulated environments this issues can be tackled with randomness for state-action values at the start of  the learning process but harder to arrange in learning from real experience. \\
 
-"In on-policy the agent commits to exploration and learns the respective stochastic policy while in off-policy an agent learns a deterministic policy separate from the one followed. Typically off-policy methods rely on some form of importance sampling."
+% "In on-policy the agent commits to exploration and learns the respective stochastic policy while in off-policy an agent learns a deterministic policy separate from the one followed. Typically off-policy methods rely on some form of importance sampling."
 
 \subsection{SARSA}
-Now TD has several advantages over MC such as lower variance and online learning so why not combine the $\epsilon$-greedy policy improvement and TD update rule from equation \ref{eq:td_update} with Q(S, A):
+Now TD has several advantages over MC such as lower variance and online learning so why not combine the $\epsilon$-greedy policy improvement and TD update rule from equation \ref{eq:td_update} with Q(S,A) \cite{lecture_mfc} :
 \begin{align}
     Q(S, A) \longleftarrow Q(S, A) + \alpha (r + \gamma Q(S', A') - Q(S, A)) \label{eq:sarsa_update_rule}
 \end{align}
@@ -679,23 +683,22 @@ Now TD has several advantages over MC such as lower variance and online learning
   \centering
 %   \hspace*{-1cm}  
   \includegraphics[scale=0.5]{figures/sarsa.PNG}
-  \caption{SARSA - On-Policy learning TD control; Source: Lecture}
+  \caption{SARSA - On-Policy learning TD control; Source: \cite{lecture_mfc}}
   \label{fig:sarsa}
 \end{figure}
 
-SARSA converges under the conditions of GLIE sequence of policies $\pi^k(a, s)$ and Robbins-Monroe sequence of step-sizes $\alpha_t$. "So, we have to control both the exploration $\epsilon$ and the learning rate
-$\alpha$ over time."
+SARSA converges under the conditions of GLIE sequence of policies $\pi^k(a, s)$ and Robbins-Monroe sequence of step-sizes $\alpha_t$. So $\epslion$ and $\alpha$ need to be adjusted over time \cite{lecture_mfc}.
 
-"One issue for SARSA is sparse rewards when the reward 
-propagates down a trace through many episodes slowly. Two ways to deal with it are SARSA-Lambda and Hindsight Experience Replay"
+% "One issue for SARSA is sparse rewards when the reward 
+% propagates down a trace through many episodes slowly. Two ways to deal with it are SARSA-Lambda and Hindsight Experience Replay"
 
 \subsection{off-policy methods}
 
 If you remember in off-policy we use a different policy $\pi'$ to generate the data while estimating and optimizing $Q^{\pi}$ and $V^{\pi}$ still. $\pi$ is the target policy and $\pi'$ is the  behaviour policy. An important assumption to ensure learning the assumption of coverage: $\pi(a, s) > 0 => \pi'(s, a) > 0$.\\
 
-"One of the most important breakthroughs in reinforcement learning was the development of off-policy TD control algorithm known as Q-learning (Watkins, 1989)." [LECTURE]
+% "One of the most important breakthroughs in reinforcement learning was the development of off-policy TD control algorithm known as Q-learning (Watkins, 1989)." [LECTURE]
 
-\subsection{towards Q learning}
+\subsection{Q learning}
 The  next action is chosen using the behaviour policy, but in the update rule we use the alternative greedy successive action based on the target policy: $\max_a Q(s_{t+1}, a)$\\
 
 In this way we allow both the target and behaviour policies to improve, target policy being greedy w.r.t. $Q(S, A)$ and behaviour policy being $\epsilon$-greedy w.r.t $Q(S, A)$. The Q learning target is then respectively: $r_{t+1} + \max_{a'} \gamma Q(s_{t+1}, a')$\\
@@ -704,34 +707,33 @@ In this way we allow both the target and behaviour policies to improve, target p
   \centering
 %   \hspace*{-1cm}  
   \includegraphics[scale=0.5]{figures/q_learning.PNG}
-  \caption{Q-Learning algorithm
-; Source: Lecture}
+  \caption{Q-Learning algorithm; Source: \cite{lecture_mfc}}
   \label{fig:q_learning}
 \end{figure}
 
 Note that there are no explicit policies here: target policy is implicit in the greedy term $max_a Q(S', a)$ and behaviour policy is the $\epsilon$-greedy version of the target policy. Both policies are updated with the update rule.
 
-\subsection{cliff walking}
+\subsection{Cliff walking  Q-learning vs. SARSA}
 
 \section{Function Approximation}
 
 \subsection{limitations of tabular}
 
 In Tabular Q learning due to the discrete nature of 
-state and action spaces it is harder to represent the real world accurately as the problem of fine discretisation arises: the approximation needs to be accurate enough for meaningful learning. But this can be memory inefficient as for example "in an atari game the unmber of states can be  approx. $10^{30,000}$". \\
+state and action spaces it is harder to represent the real world accurately as the problem of fine discretisation arises: the approximation needs to be accurate enough for meaningful learning. But this can be memory inefficient as for example "in an atari game the number of states can be  approx. $10^{30,000}$" \cite{lecture_intro_to_deep_rl}. \\
 
-Another important limitation affects the exploration ability of the learning agent: each Q entry for subsecquent state-action entries meed to updated independently despite obvious correlation between them.\\
+Another important limitation affects the exploration ability of the learning agent: each Q entry for subsequent state-action entries need to be updated independently despite obvious correlation between them.\\
 
 One solution to this is function approximation.
 
 \section{Deep learning}
 
-A neural network consists of multiple layers of interconnected neurons each defined by a weight and bias that are applied to the incoming signal.\\
+A neural network consists of multiple layers of interconnected neurons each defined by a weight and bias that are applied to the incoming signal \cite{lecture_intro_to_deep_rl}.\\
 
 In supervised learning there's usually a reference that 
-the network is trained against, for example in classification the reference might be a label to an RGB image. The model then learns weights such that the desired outputs are produced on respective inputs. \\
+the network is trained against, for example in classification the reference might be a label to an RGB image. The model then learns weights such that the desired outputs are produced on respective inputs \cite{lecture_intro_to_deep_rl} . \\
 
-This is achieved through backpropagation and gradient descent where the difference between current weights and desired weights is evaluated using a cost functions and applied until convergence.\\
+This is achieved through backpropagation and gradient descent where the difference between current weights and desired weights is evaluated using a cost functions and applied until convergence \cite{lecture_intro_to_deep_rl} .\\
 
 For example for a dataset with $x_i$ input paired with a $y_i$ label cost function would be: 
 \begin{align}
@@ -741,18 +743,18 @@ For example for a dataset with $x_i$ input paired with a $y_i$ label cost functi
 \section{Deep Q learning}
 
 So our goal now is to approximate the Q-table with a neural network that accepts state and outputs Q(s, a) 
-values for the whole range of actions. Thus we make state space continuous, while action space is still discrete. like in this example:
+values for the whole range of actions \cite{lecture_intro_to_deep_rl}. Thus we make state space continuous, while action space is still discrete. like in this example:
 
 \begin{figure}[h!]
   \centering
 %   \hspace*{-1cm}  
   \includegraphics[scale=0.5]{figures/q_network.PNG}
-  \caption{Example Q network for traversing a 2D space; Source: Lecture}
+  \caption{Example Q network for traversing a 2D space; Source: \cite{lecture_dqn}}
   \label{fig:q_network  }
 \end{figure}
 
 \subsection{cost function}
-Tranferring the TD error from equation \ref{eq:td_update} into the context of neural network cost function we get:
+Tranferring the TD error from equation \ref{eq:td_update} into the context of neural network cost function we get \cite{lecture_intro_to_deep_rl}:
 \begin{align}
     C(\theta, D) = [R + \gamma \max_a Q(S', a) - Q(S, A)]^2
 \end{align}
@@ -760,24 +762,25 @@ Tranferring the TD error from equation \ref{eq:td_update} into the context of ne
   \centering
 %   \hspace*{-1cm}  
   \includegraphics[scale=0.5]{figures/dqn_first.PNG}
-  \caption{Deep Q -learning algorithm; Source: Lecture}
+  \caption{Deep Q-learning algorithm; Source: \cite{lecture_dqn}}
   \label{fig:dqn_first}
 \end{figure}
-\subsection{is it possible for q network to overfit?}
-Like any neural network it can overfit but the random starts nature of LR counteracts that in effect [QnA]
+
+\subsection{Overfitting}
+% Like any neural network it can overfit but the random starts nature of LR counteracts that in effect [QnA]
+
 \section{Experience Replay Buffer}
 
-One limitation of online learning is that one transition needs to be visited many times for the network to learn appropriate weights ("many updates per transition"). \\
+One limitation of online learning is that one transition needs to be visited many times for the network to learn appropriate weights ("many updates per transition" \cite{lecture_dqn}). \\
 
-"A solution is to create a dataset of all the experienced data so far collected by the agent." The 
-advantage is that any transition can be sampled from the replay buffer and trained on more than once. 
+A solution is to create a dataset of all the experienced data so far collected by the agent." The advantage is that any transition can be sampled from the replay buffer and trained on more than once \cite{lecture_dqn}. 
 
 \subsection{Mini batch learning }
 
-Another limitation of deep Q-learning is that since now Q is represented not by a table, but by a continous function, neighbouring state values will affect each other easily due to correlation between them. And if 
-we update the function in a consecutive manner (going by consecutive states in the order they were collected for example) this will cause the  Q-distribution to start changing rapidly and affect the untrained parts of the Q-network and cause uneven learning. \\
+Another limitation of deep Q-learning is that since now Q is represented not by a table, but by a continous function, neighbouring state values will affect each other easily due to correlation between them \cite{lecture_dqn} . And if 
+we update the function in a consecutive manner (going by consecutive states in the order they were collected for example) this will cause the  Q-distribution to start changing rapidly and affect the untrained parts of the Q-network and cause uneven learning \cite{lecture_dqn}. \\
 
-One solution is to sample transitions from the replay buffer not in the order they were collected but in random mini-batches. This causes a more uniform, even learning and update of the Q function.  
+One solution is to sample transitions from the replay buffer not in the order they were collected but in random mini-batches\cite{lecture_dqn}. This causes a more uniform, even learning and update of the Q function \cite{lecture_dqn}.  
 
 \begin{figure}[h!]
   \centering
@@ -790,7 +793,7 @@ One solution is to sample transitions from the replay buffer not in the order th
 \subsection{Prioritised Experience Replay}
 
 On top of sampling transitions in minibatches is a uniform random manner it may be useful to note that some transitions might be more important for learning and 
-sampling them in particular more than others may be more useful. Hence the idea of prioritised experience replay buffer. \\
+sampling them in particular more than others may be more useful \cite{lecture_dqn}. Hence the idea of prioritised experience replay buffer. \\
 
 A way to tell which transitions are more important than others is to see the magnitude of the prediction error $\delta = R + \gamma \max_a Q_{\theta}(S', a) - Q_{\theta}(S, A)$. 
 Intuitively greater error results in greater learning.\\
@@ -801,13 +804,13 @@ So each transition is assigned a weight $w_i = |\delta| + \epsilon$, where $\eps
 \end{align}
 Where $\alpha$ determines how much individual transitions are prioritized over the others with $\alpha = 0$ being equivalent to uniform sampling.\\
 
-It only makes sense to update only the weights for transitions that were sampled, since we already have their $\delta$ error values. For new transitions pushed to the replay buffer, assign the current maximum weight to ensure that they can be sampled and that sufficient exploration is done.
+It only makes sense to update only the weights for transitions that were sampled, since we already have their $\delta$ error values\cite{lecture_dqn}. For new transitions pushed to the replay buffer, assign the current maximum weight to ensure that they can be sampled and that sufficient exploration is done.
 
 \begin{figure}[h!]
   \centering
 %   \hspace*{-1cm}  
   \includegraphics[scale=0.5]{figures/prioritized_buffer.PNG}
-  \caption{Prioritised Experience Replay Algorithm; Source: Lecture}
+  \caption{Prioritised Experience Replay Algorithm; \cite{lecture_dqn}: \cite{lecture_dqn}}
   \label{fig:replay_buffer}
 \end{figure}
 \newpage
@@ -816,24 +819,24 @@ It only makes sense to update only the weights for transitions that were sampled
 
 As we have seen before with mini-batch sampling having an approximated Q function introduces certain challenges. 
 For example when adjacent states are trained on multiple times
-it results in a rocketing effect with the Q function basically "chasing its own tail" in a sense.  
+it results in a rocketing effect with the Q function basically "chasing its own tail" in a sense \cite{lecture_dqn}.  
 \begin{figure}[h!h!h!h]
 \centering
 \includegraphics[scale=0.5]{figures/target 1.PNG}
 \includegraphics[scale=0.5]{figures/target 2.PNG}\\
 \includegraphics[scale=0.5]{figures/target 3.PNG}
 \includegraphics[scale=0.5]{figures/target 4.PNG}
-  \caption{Generalisation effect on learning; Source: Lecture}
+  \caption{Generalisation effect on learning; Source: \cite{lecture_dqn}}
   \label{fig:generalisation_curse}
 \end{figure}
 
 This correlation between adjacent states can be tracked down to the $\max_a Q_{\theta}(S', a)$ term in the update step. Hence the 
-extension to DQN is to introduce a separate Target Network $\hat{Q}$ to calculate the prediction error. This allows Q network to learn independently from the generalisation effect. Every now and then \hat{Q} is set to Q.
+extension to DQN is to introduce a separate Target Network $\hat{Q}$ to calculate the prediction error. This allows Q network to learn independently from the generalisation effect \cite{lecture_dqn}. Every now and then \hat{Q} is set to Q.
 
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.4]{figures/target 0.PNG}
-  \caption{Target network; Source: Lecture}
+  \caption{Target network; Source: \cite{lecture_dqn}}
   \label{fig:target_network}
 \end{figure}
 
@@ -848,10 +851,10 @@ Here's the updated algorithm for Deep Q-learning with target network extension.
 \end{figure}
 
 \section{Double Deep Q-learning}
-Another issue that still arises is the problem of overestimation when picking the greedy action in the target $R + \gamma \max_a \hat{Q}_{\hat{\theta}}(S' a)$. Target network is a noisy estimation for different action values (for an arbitraty state) and the sampled maximum $\hat{Q}$ value might not be the maximum for the true $Q$ function for the same action. In order to tackle this problem of overestimation 
+Another issue that still arises is the problem of overestimation when picking the greedy action in the target $R + \gamma \max_a \hat{Q}_{\hat{\theta}}(S' a)$. Target network is a noisy estimation for different action values (for an arbitraty state) and the sampled maximum $\hat{Q}$ value might not be the maximum for the true $Q$ function for the same action \cite{lecture_dqn}. In order to tackle this problem of overestimation 
 further decoupling is introduced in the target term.\\
 
-In Double Deep Q-learning different networks are used to pick the maximum action and estimate its Q value. This on average reduces the amount by which an action is overestimated since an unusually high value in one network is unlikely to be such in the other. thus the new error in the update step in the algorithm is either:
+In Double Deep Q-learning different networks are used to pick the maximum action and estimate its Q value. This on average reduces the amount by which an action is overestimated since an unusually high value in one network is unlikely to be such in the other \cite{lecture_dqn}. Thus the new error in the update step in the algorithm is either:
 \begin{align}
     [R + \gamma Q_{\theta}(S', \text{arg}\max_a\ \hat{Q}_{\hat{\theta}}(S', a)) - Q_{\theta}(S, A)]^2
 \end{align}
