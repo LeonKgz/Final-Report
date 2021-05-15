@@ -9,8 +9,6 @@ It is an association of companies with Semtech being one of
 its founding members \cite{alliance_founder} backing up the LoRaWAN protocol, insuring its
 global presence and acceptance. The total number of members of the alliance has surpassed 500 in 2017 \cite{500_members}. Among the notable members are Cisco, Amazon and Alibaba \cite{alliance_members}.\\
 
-One of the biggest contributors to the Lora Alliance project is The Things Network (TTN). TTN \footnote{https://www.thethingsnetwork.org/} is an open community of volunteers that took on an initiative to contruct and maintain LoRaWAN stations around the world to reach its global coverage. On their website they also provide tutorials and guides to help people deploy LoRaWAN gateways and nodes. 
-
 \section{Basics}
 
 Before diving into the specifics of LoRa and how it operates, let's have a look at the fundamental technologies and techniques behind it. \\
@@ -162,8 +160,7 @@ implementation (i.e. end-device/node being the receiver in question), we are int
  
 \chapter{Simulation Framework}
 
-In order to simulate a LoRaWAN network I have decided to pick one described in this paper \cite{simulator}. The developers of the paper have closely followed guidelines from The Things Network. The simluation code is published in github \cite{simulator_github}. The developers have decided to simulate the LoRaWAN network via the \texttt{SimPy} python library which "is a process-based discrete-event simulation framework based on standard Python"\cite{simpy}. The simulation is mainly driven through continuous yielding of appropriate generator functions. A potential improvement to the code would be introduction of some sort of parallelisation.
-
+In order to simulate a LoRaWAN network I have decided to pick one described in this paper \cite{simulator}. The developers of the paper have closely followed guidelines from The Things Network (TTN)\footnote{https://www.thethingsnetwork.org/}, which is an open community of volunteers that took on an initiative to contruct and maintain LoRaWAN stations around the world to reach its global coverage. On their website they also provide tutorials and guides to help people deploy LoRaWAN gateways and nodes. The simulation code is published in github \cite{simulator_github}. The developers have decided to simulate the LoRaWAN network via the \texttt{SimPy} which is a Python discrete-event simulation framework library\cite{simpy}. The simulation is mainly driven through continuous yielding of appropriate generator functions. A potential improvement to the code would be introduction of some sort of parallelisation.
 
 \subsection{Architecture}
 
@@ -261,10 +258,9 @@ decide on appropriate \texttt{LoRa Parameters} values for uplink frames.
 
 \chapter{Reinforcement Learning} 
 
-Reinforcement Learning has recently seen a rise in popularity after
-the success of DeepMind in 2016 after AlphaGo beat the Korean 9-dan professional Go player \cite{alpha_go_lee_sedol} and after more recently OpenAI beat a team of professionals in a Dota 2 match \cite{dota}.\\
+Reinforcement Learning has recently seen a rise in popularity after a few successful case studies such as the success of DeepMind in 2016 after AlphaGo beat the Korean 9-dan professional Go player \cite{alpha_go_lee_sedol} and after more recently OpenAI beat a team of professionals in a Dota 2 match \cite{dota}.\\
 
-Reinforcement Learning (RL) typically focuses on the problems of agents within some environment. The agents can act upon the environment with some goal in mind (e.g. robot playing chess). The policy of that agent (i.e. how it decides to act under certain conditions (e.g. coordinates on a map, temperature, board game position)) is the component, not specified by the programmer but instead learnt by the agent via trial-and-error interactions with the environment over the learning period. Thus RL often reduces to a problem of learning the optimal policy in the context of a particular application. [CITE ME???] \\
+Reinforcement Learning (RL) typically focuses on the problems of agents within some environment. The agents try to learn optimal behaviour within the environment, with the goal of maximizing some sort of reward (e.g. AlphaGo playing Go, trying to maximize it's win probability \cite{alpha_go_lee_sedol}). The policy of that agent, i.e. how it decides to act under certain conditions (e.g. coordinates on a map, temperature, board game position) is the component, not specified by the programmer but instead learnt by the agent via trial-and-error interactions with the environment over the learning period \cite{sutton_barto}. Thus RL often reduces to a problem of learning the optimal policy in the context of a particular application.\\
 
 This closed loop can be demonstrated as in the figure \ref{fig:closed_loop} below, where an agent subject to state $S_{t}$
 and reward $R_{t}$ takes an action $A_{t}$ which leads to a new
@@ -301,7 +297,7 @@ that the weather tomorrow is \textbf{independent} of the
 weather yesterday and only depends on the weather today then
 we could effectively derive the other 2 missing probabilites
 for the weather staying Sunny (1 - 0.1 = 0.9) or Rainy (1 -
-0.5 = 0.5) for 2 days in a row \cite{markov_chain_article}. \\This example is demonstrated in figure \ref{fig:weather}.
+0.5 = 0.5) for 2 days in a row \cite{markov_chain_article}. This example is demonstrated in figure \ref{fig:weather}.
 
 \begin{figure}[H]
   \centering
@@ -332,10 +328,10 @@ The process is also defined by a discount factor $\gamma \in [0, 1]$ \cite{lectu
 \end{align}
 
 The discount factor allows the agent to put different weight on immediate and distant rewards,
-with small $\gamma$ being more concerned with immediate results and large $\gamma$ looking far into the future \cite{lecture_lets_go_markov}. 
+with smaller $\gamma$ being more concerned with immediate results and larger $\gamma$ looking far into the future \cite{lecture_lets_go_markov}. 
 
 % [WHY DISCOUNTING IS A GOOD IDEA SLIDE 56 https://materials.doc.ic.ac.uk/view/2021/70028/Course\%20Material/7]
-\section{State Value Function}
+\subsection{State Value Function}
 State Value Function $v$ is the estimate of the total return one expects to retrieve starting from a state $s$ at time $t$ in the context 
 of a Markov Reward Process \cite{lecture_lets_go_markov}.
 \begin{align}
@@ -343,17 +339,17 @@ of a Markov Reward Process \cite{lecture_lets_go_markov}.
 \end{align}
 
 If we expand the $R_t$ term as in \ref{eq:return} and apply the Law of Total expectation along with definition from \ref{eq:return_matrix} we get the following derivation \cite{lecture_lets_go_markov}:
-\begin{align*}
-    v(s) &= \EX[R_t | S_t = s]\\
-         &= \EX[r_{t+1} + \gamma r_{t+2} + \gamma ^2 r_{t+3} + ... | S_t = s] & \text{\ref{eq:return} definition} \\
-         &= \EX[r_{t+1} + \gamma (r_{t+2} + \gamma r_{t+3} + ...) | S_t = s]\\
-         &= \EX[r_{t+1} + \gamma R_{t+1} | S_t = s] & \text{\ref{eq:return} definition} \\
-         &= \EX[r_{t+1} + \gamma \EX[R_{t+1} | S_t = s] | S_t = s] & \text{Law of Total expectation} \\
-         &= \EX[r_{t+1} + \gamma v(S_{t+1})| S_t = s] \label{eq:value_function} & \text{definition \ref{eq:value_function_def}} \\
-         &= R_s + \gamma \sum_{s' \in S} P_{ss'}v(s') & \text{expanding $\EX$ term}
-\end{align*}
+\begin{align}
+    v(s) &= \EX[R_t | S_t = s] \label{eq:value_function}\\
+         &= \EX[r_{t+1} + \gamma r_{t+2} + \gamma ^2 r_{t+3} + ... | S_t = s] & \text{definition \ref{eq:return}} \nonumber \\
+         &= \EX[r_{t+1} + \gamma (r_{t+2} + \gamma r_{t+3} + ...) | S_t = s] \nonumber\\
+         &= \EX[r_{t+1} + \gamma R_{t+1} | S_t = s] & \text{definition \ref{eq:return}}  \nonumber\\
+         &= \EX[r_{t+1} + \gamma \EX[R_{t+1} | S_t = s] | S_t = s] & \text{Law of Total expectation}  \nonumber\\
+         &= \EX[r_{t+1} + \gamma v(S_{t+1})| S_t = s] & \text{definition \ref{eq:value_function_def}}  \nonumber\\
+         &= R_s + \gamma \sum_{s' \in S} P_{ss'}v(s') & \text{expanding $\EX$ term + definition  \ref{eq:return_matrix}} \nonumber
+\end{align}
 
-If we convert the last line of the above derivation into vector notation to account for n states (respectively n dimensions):
+Converting the last line of the above derivation into vector notation to account for n states (respectively n dimensions):
 \begin{align}
     \textbf{v} = R + \gamma P \textbf{v}
 \end{align}
@@ -380,30 +376,30 @@ Combining Markov Reward Process with a policy yields Markov Decision Process, de
 
 \subsection{Value Function}
 If we now account for an MDP policy $\pi$ and expand the original definition \ref{eq:value_function_def} \cite{lecture_mdp}:
-\begin{align*}
-    V^{\pi}(s) &= \EX_{\pi}[R_{t} | S_t = s] \\
-    &= \EX[\sum^{\infty}_{k=0} \gamma^k r_{t+k+1} | S_t = s]\\
-    &= \EX[r_{t+1} + \gamma \sum^{\infty}_{k=0} \gamma^k r_{t+k+2} | S_t = s]\\
-    &= \sum_{a \in A} \pi(s, a) \sum_{s' \in S} P^{a}_{ss'} (R^{a}_{ss'} + \gamma V^{\pi}(s')) &\text{expanding $\EX$} \label{value_function_expansion}
-\end{align*}
+\begin{align}
+    V^{\pi}(s) &= \EX_{\pi}[R_{t} | S_t = s]  \nonumber \\
+    &= \EX[\sum^{\infty}_{k=0} \gamma^k r_{t+k+1} | S_t = s] \nonumber \\
+    &= \EX[r_{t+1} + \gamma \sum^{\infty}_{k=0} \gamma^k r_{t+k+2} | S_t = s] \nonumber \\
+    &= \sum_{a \in A} \pi(s, a) \sum_{s' \in S} P^{a}_{ss'} (R^{a}_{ss'} + \gamma V^{\pi}(s')) &\text{expanding $\EX$} \label{eq:mdp_value_function_expansion}
+\end{align}
 
 where 
 \begin{align*}
-    \pi(a, s) &= P[a|s] &\text{chosen action}\\
-    P^{a}_{ss'} &= P[s' | s, a] &\text{transition probability}\\
-    R^{a}_{ss'} &= r(s, a, s') &\text{immediate reward}
+    \pi(a, s) &= P[a|s] &\text{policy i.e. probability of taking action $a$}\\
+    P^{a}_{ss'} &= P[s' | s, a] &\text{state-action transition probability}\\
+    R^{a}_{ss'} &= r(s, a, s') &\text{immediate reward function}
 \end{align*}
 
 Majority of all the reinforcement learning algorithms introduced in this chapter later down below will rely on this "recursive consistency" \cite{lecture_mdp} property of state value functions. 
 \subsection{Policy Evaluation}
 Now we need to find a systematic way of estimating the value
-function for a given MDP for an arbitrary policy. This process is called Policy Evaluation \cite{lecture_mdp}. The most obvious method is to apply the Bellman equation over and over again, until the value function converges as in \ref{fig:pia}.
+function for a given MDP for an arbitrary policy. This process is called Policy Evaluation \cite{lecture_mdp}. The most obvious method is to apply the Bellman equation over and over again, until the value function converges as in figure \ref{fig:ipa}.
 \begin{figure}[H]
   \centering
 %   \hspace*{-1cm}  
-  \includegraphics[scale=0.7]{figures/iterative_policy_evaluation.PNG}
+  \includegraphics[scale=0.8]{figures/iterative_policy_evaluation.PNG}
   \caption{Iterative Policy Algorithm; Source: \cite{lecture_mdp}}
-  \label{fig:pia}
+  \label{fig:ipa}
 \end{figure}
 \subsection{State Action Value Function}
 As an extension to the state value function we introduce the state-action value function $Q$ that evaluates the expected return for taking action $a$ at a state $s$ subject to policy $\pi$ \cite{lecture_mdp} :
@@ -417,22 +413,22 @@ The relationship between state value and state-action value functions is as foll
 \end{align}
 
 \subsection{Optimal Value and Optimality equations}
-If we are to optimize the state value function V we are to determine the optimal ploicy. The Optimal Value Function is \cite{lecture_mdp}:
+If we are to optimize the state value function V we are to determine the optimal ploicy. The Optimal Value Function $V^{*}$ is \cite{lecture_mdp}:
 \begin{align}
     V^*(s) = \max_{\pi} V^{\pi}(s)   \forall s \in S
 \end{align}
 
-Following similar derivation as in \ref{value_function_expansion}:
+Following similar derivation as in \ref{eq:mdp_value_function_expansion}:
 \begin{align}
     V^*(s) = \max_{a}\sum_{s'} P^{a}_{ss'} (R^{a}_{ss'} + \gamma V^{*}(s'))
 \end{align}
 
-Respectively for the optimal state-action value function:
+Respectively for the optimal state-action value function $Q^{*}$:
 \begin{align}
     Q^*(s, a) = \sum_{s'} P^{a}_{ss'} (R^{a}_{ss'} + \gamma \max_{a'}Q^{*}(s', a'))
 \end{align}
 
-Applying the Bellman Optimality Equation is one way to solve the problem of finding the optimal policy. But this relies on 3 assumptions: the environment model is well-known, we have computational resources to brute force the solution and of course the Markov property. So as often happens approximate solutions are searched \cite{lecture_mdp}.
+Applying the Bellman Optimality Equation is one way to solve the problem of finding the optimal policy. But this relies on 3 assumptions: the environment model is well-known, we have computational resources to brute force the solution and of course the Markov property \cite{lecture_mdp}. So as often happens approximate solutions are searched.
 
 \subsection{Optimality Convergence Theorem}
 % "Theorem (Bellman Optimality Equation convergence theorem):\\
@@ -444,13 +440,12 @@ Applying the Bellman Optimality Equation is one way to solve the problem of find
 Dynamic Programming typically refers to a set of algorithms targeted at solving problems within well-defined systems such as Markov Decision Process \cite{lecture_dp}. Typically Dynamic Programming refers to solving a problem by breaking it into smaller sub-problems and solving them recursively.
 
 \subsection{Policy Improvement Theorem}
-
 According to \cite{lecture_dp} the theorem is as follows: given policies $\pi$ and $\pi'$ such that $\forall s \in S$
 \begin{align}
     Q^{\pi}(s, \pi'(s)) \geq V^{\pi}(s).
 \end{align}
 
-This implies that $\pi'$ is at least as good as $\pi$:
+Implies that $\pi'$ is at least as good as $\pi$:
 \begin{align}
     V^{\pi'}(s) \geq V^{\pi}(s), \forall s \in S
 \end{align}
@@ -497,7 +492,7 @@ of dynamic programming Model-Free Learning comes into play.
 \section{Model-Free Learning}
 Model-Free learning as its name suggests focuses on way
 of solving a problem without the need of full model knowledge,
-like dynamic programming. 
+like in dynamic programming. 
 \subsection{Monte Carlo (MC) methods}
 
 MC methods learn directly from real experience. No model knowledge is required because learning is conducted on finished traces of episodes that end in a terminal state (and respectively bootstrapping is not needed as well) \cite{lecture_mfl} . The basic idea is to calculate the average return per episode.
@@ -530,17 +525,13 @@ In the same way we can update the state value function $V(s)$ incrementally afte
     V(s_t) \longleftarrow V(s_t) + \frac{1}{N(s_t)}(R_t - V(s_t))
 \end{align}
 
-Moreover one can set the $N(s_t)$ value (i.e. current number of episodes) to another number $n$, such that $n < N(s_t)$, by basically narrowing down the averaging operation to the last n episodes. This is in effect turns into the rate of "forgetting old episodes" \cite{lecture_mfl} $\alpha$.
+Moreover one can set the $N(s_t)$ value (i.e. current number of episodes) to another number $n$, such that $n < N(s_t)$, by basically narrowing down the averaging operation to the last n episodes. This is in effect turns it into $\alpha$ -- the rate of "forgetting old episodes" \cite{lecture_mfl}:
 \begin{align}
     V(s_t) \longleftarrow V(s_t) + \alpha (R_t - V(s_t)) \label{eq:mc_increment}
 \end{align}
 
 \subsection{Temporal Difference}
-We have now introduced to different approaches to solving 
-the reinforcement learning problem of finding the optimal 
-Value function for a problem at hand: Dynamic Programming and 
-Monte-Carlo. Dynamic programming achieves the optimal solution
-through "bootstrapping" i.e. estimating state values through
+We have now introduced two different approaches to finding the optimal Value function for a problem at hand: Dynamic Programming and Monte-Carlo. Dynamic programming achieves the optimal solution through "bootstrapping" i.e. estimating state values through
 neighbouring states. Monte-Carlo methods calculate the estimates through sampling directly from experience i.e. traces of episodes. \\
 
 Temporal Difference (TD) is what combines DP and MC: like MC It does not require knowledge of Markov Decision Process at hand and 
@@ -566,9 +557,9 @@ where:
   r_{t+1} + \gamma V(s_{t+1}) &\text { — } \text{TD target}
 \end{align*}
 
-Comparing this to the update rule for MC (equation \ref{eq:mc_increment}) we can see that in addition to the actual measured reward $r_{t+1} (R_{t}$ in equation \ref{eq:mc_increment}) we add an estimate of the next state i.e. $V(s_{t+1})$. This estimation refers us back to the original estimation of the value function from equation \ref{eq:value_function}\\
+Comparing this to the update rule for MC (equation \ref{eq:mc_increment}) we can see that in addition to the actual measured reward $r_{t+1} (R_{t}$ in equation \ref{eq:mc_increment}) we add an estimate of the next state i.e. $V(s_{t+1})$. This estimation refers us back to the original estimation of the value function from equation \ref{eq:value_function} making TD target an estimation of the total expected return.\\
 
-Here's the TD value estimation algorithm with the hew update rule combining bootstrapping and direct sampling:
+Here's the TD value estimation algorithm with the new update rule combining bootstrapping and direct sampling:
 
 \begin{figure}[h!]
   \centering
@@ -582,9 +573,9 @@ Here's the TD value estimation algorithm with the hew update rule combining boot
 In statistics the Bias-Variance tradeoff typically refers to 
 a compelled compromise between variance and bias, i.e. either high variance and low bias or low variance and high bias. \\
 
-We can see that $R_t = r_{t+1} + \gamma r_{t+2} + \gamma ^2 r_{t+3} + ...$ is an unbiased estimate of $V^{\pi} (s_t)$ by the definition \ref{eq:value_function_def} of the state value function itself. So if the update rule for TD was $r_{t+1} + \gamma V^{\pi}(s_{t+1})$ it would be an unbiased estimate of $V^{\pi}(s_{t})$ (given $V^{\pi}(s_{t+1})$ is the true value function). But what we actually have is an estimate of the $V^{\pi}(s_{t+1})$: $r_{t+1} + \gamma V(s_{t+1})$ and so the expression for TD target is the biased estimate of $V^{\pi}(s_t)$ \cite{lecture_mfl}. \\
+We can see that $R_t = r_{t+1} + \gamma r_{t+2} + \gamma ^2 r_{t+3} + ...$ is an unbiased estimate of $V^{\pi} (s_t)$ by the definition \ref{eq:value_function_def} of the state value function itself. So if the update rule for TD was $r_{t+1} + \gamma V^{\pi}(s_{t+1})$ it would be an unbiased estimate of $V^{\pi}(s_{t})$ (given $V^{\pi}(s_{t+1})$ is the true value function). But what we actually have is an estimate of the $V^{\pi}(s_{t+1})$ — $V$ ($r_{t+1} + \gamma V(s_{t+1})$ in the update rule) and so the expression for TD target is the biased estimate of $V^{\pi}(s_t)$ \cite{lecture_mfl}. \\
 
-Now if we compare TD and MC methods we can see that TD has some bias with MC being generally unbiased, at the same time TD has much lower variance since the estimate is based on one transition (s, a, r, s'), while MC return estimate depends on many transitions (trace of episodes). The immediate implications of this is that MC methods have good convergence,
+Now if we compare TD and MC methods we can see that TD has some bias with MC being generally unbiased, at the same time TD has much lower variance since the estimate is based only on one transition (s, a, r, s'), while MC return estimate depends on many transitions (trace of episodes). The immediate implications of this is that MC methods have good convergence,
 if the simulation runs for long enough but TD is usually more efficient, so it requres less time to learn the value function \cite{lecture_mfl}.
 % But due to its nature it is more sensitive to the initalization values for value function.
 
@@ -594,7 +585,7 @@ Now we know how to estimate the value function with no model knowledge. The next
 % We cannot refer to MDP in 2 scenarios: MDP is simply unknown or MDP is well defined but too big to generalise/estimate (Curse of dimensionality).
 
 \subsection{Generalised Policy Iteration on State Value function} 
-One approach is Generalised Policy Iteration (similar in effect to the policy iteration above in figure \ref{fig:pia}). But we cannot apply the exact Policy improvement as before since the update rule for the policy being improved if you remember is: 
+One approach is Generalised Policy Iteration (similar in effect to the Monte-Carlo policy iteration above in figure \ref{fig:pia}). But we cannot apply the exact Policy improvement as before since the update rule for the policy being improved if you remember is: 
 \begin{align}
     \pi(s) \leftarrow arg \max_{a} \sum_{s'} P^{a}_{ss'} [R^{a}_{ss'} + \gamma V(s')]
 \end{align}
@@ -605,7 +596,7 @@ Here we need the knowledge of the state transition probabilities $P$ and the imm
 % "Formally there's no difference between transitions between states and value of states and transitions between state-action pairs and state-action value function respectively. Both can be seen as Markov chains with a reward process."
 \subsection{MC Policy improvement theorem}
 
-Similarly to how Policy Improvement Theorem can be proven for Dynamic Programming, it can be shown that $Q^{\pi_k}(s, \pi_{k+1}(s)) \geq V^{\pi_k}(s)$ \cite{lecture_mfc}. 
+Similarly to how Policy Improvement Theorem can be proven for Dynamic Programming, it can be shown that $Q^{\pi_k}(s, \pi_{k+1}(s)) \geq V^{\pi_k}(s)$ implies that $\pi_{k+1} \geq \pi_k$ \cite{lecture_mfc}. 
 % "Thus each subsequent policy is better than the previous one and this means convergence to optimal policy and value functions." 
 
 \subsection{On and Off policies}
@@ -635,7 +626,7 @@ $\epsilon$-greedy policy with $\epsilon \in [0, 1]$:
 
 \subsection{Monte Carlo Control algorithm}
 
-Now adding the policy update to the MC POlicy Evaluation algorithm:
+Now adding the policy update to the MC Policy Evaluation algorithm we combine the evaluation and the improvement steps into one loop:
 
 \begin{figure}[h!]
   \centering
@@ -673,8 +664,8 @@ Now adding the policy update to the MC POlicy Evaluation algorithm:
 
 % "In on-policy the agent commits to exploration and learns the respective stochastic policy while in off-policy an agent learns a deterministic policy separate from the one followed. Typically off-policy methods rely on some form of importance sampling."
 
-\subsection{SARSA}
-Now TD has several advantages over MC such as lower variance and online learning so why not combine the $\epsilon$-greedy policy improvement and TD update rule from equation \ref{eq:td_update} with Q(S,A) \cite{lecture_mfc} :
+\subsection{Temporal Difference Control -- SARSA}
+Temporal Difference has several advantages over MC such as lower variance and online learning so why not combine the $\epsilon$-greedy policy improvement and TD update rule from equation \ref{eq:td_update} with Q(S,A) \cite{lecture_mfc} :
 \begin{align}
     Q(S, A) \longleftarrow Q(S, A) + \alpha (r + \gamma Q(S', A') - Q(S, A)) \label{eq:sarsa_update_rule}
 \end{align}
@@ -687,19 +678,19 @@ Now TD has several advantages over MC such as lower variance and online learning
   \label{fig:sarsa}
 \end{figure}
 
-SARSA converges under the conditions of GLIE sequence of policies $\pi^k(a, s)$ and Robbins-Monroe sequence of step-sizes $\alpha_t$. So $\epslion$ and $\alpha$ need to be adjusted over time \cite{lecture_mfc}.
+SARSA converges under the conditions of GLIE sequence of policies $\pi^k(a, s)$ and Robbins-Monroe sequence of step-sizes $\alpha_t$. So $\epsilon$ and $\alpha$ need to be adjusted over time \cite{lecture_mfc}.
 
 % "One issue for SARSA is sparse rewards when the reward 
 % propagates down a trace through many episodes slowly. Two ways to deal with it are SARSA-Lambda and Hindsight Experience Replay"
 
-\subsection{off-policy methods}
+\subsection{Off-policy methods}
 
-If you remember in off-policy we use a different policy $\pi'$ to generate the data while estimating and optimizing $Q^{\pi}$ and $V^{\pi}$ still. $\pi$ is the target policy and $\pi'$ is the  behaviour policy. An important assumption to ensure learning the assumption of coverage: $\pi(a, s) > 0 => \pi'(s, a) > 0$.\\
+If you remember in off-policy we use a different policy $\pi'$ to generate the data while estimating and optimizing $Q^{\pi}$ and $V^{\pi}$ still. $\pi$ is the target policy and $\pi'$ is the  behaviour policy. An important assumption to ensure learning the assumption of coverage: $\pi(a, s) > 0 => \pi'(s, a) > 0$ \cite{lecture_mfc}.\\
 
 % "One of the most important breakthroughs in reinforcement learning was the development of off-policy TD control algorithm known as Q-learning (Watkins, 1989)." [LECTURE]
 
 \subsection{Q learning}
-The  next action is chosen using the behaviour policy, but in the update rule we use the alternative greedy successive action based on the target policy: $\max_a Q(s_{t+1}, a)$\\
+In Q-learning the  next action is chosen using the behaviour policy, but in the update rule we use the alternative greedy successive action based on the target policy: $\max_a Q(s_{t+1}, a)$\\
 
 In this way we allow both the target and behaviour policies to improve, target policy being greedy w.r.t. $Q(S, A)$ and behaviour policy being $\epsilon$-greedy w.r.t $Q(S, A)$. The Q learning target is then respectively: $r_{t+1} + \max_{a'} \gamma Q(s_{t+1}, a')$\\
 
@@ -711,16 +702,16 @@ In this way we allow both the target and behaviour policies to improve, target p
   \label{fig:q_learning}
 \end{figure}
 
-Note that there are no explicit policies here: target policy is implicit in the greedy term $max_a Q(S', a)$ and behaviour policy is the $\epsilon$-greedy version of the target policy. Both policies are updated with the update rule.
+Note that there are no explicit policies here: target policy is implicit in the greedy term $max_a Q(S', a)$ and behaviour policy is the $\epsilon$-greedy version of the target policy that we use to choose $A$. Both policies are updated with the update rule.
 
 \subsection{Cliff walking  Q-learning vs. SARSA}
 
 \section{Function Approximation}
 
-\subsection{limitations of tabular}
+\subsection{Limitations of tabular}
 
 In Tabular Q learning due to the discrete nature of 
-state and action spaces it is harder to represent the real world accurately as the problem of fine discretisation arises: the approximation needs to be accurate enough for meaningful learning. But this can be memory inefficient as for example "in an atari game the number of states can be  approx. $10^{30,000}$" \cite{lecture_intro_to_deep_rl}. \\
+state and action spaces it is harder to represent the real world accurately as the problem of fine discretisation arises: the approximation needs to be accurate enough for meaningful learning. But this can be memory inefficient as the number of parameters grows \cite{lecture_intro_to_deep_rl}. \\
 
 Another important limitation affects the exploration ability of the learning agent: each Q entry for subsequent state-action entries need to be updated independently despite obvious correlation between them.\\
 
@@ -743,13 +734,13 @@ For example for a dataset with $x_i$ input paired with a $y_i$ label cost functi
 \section{Deep Q learning}
 
 So our goal now is to approximate the Q-table with a neural network that accepts state and outputs Q(s, a) 
-values for the whole range of actions \cite{lecture_intro_to_deep_rl}. Thus we make state space continuous, while action space is still discrete. like in this example:
+values for the whole range of actions \cite{lecture_intro_to_deep_rl}. Thus we make state space continuous, while action space is still discrete, like in this example:
 
 \begin{figure}[h!]
   \centering
 %   \hspace*{-1cm}  
   \includegraphics[scale=0.5]{figures/q_network.PNG}
-  \caption{Example Q network for traversing a 2D space; Source: \cite{lecture_dqn}}
+  \caption{Example Q network for traversing a 2D space; Source: \cite{lecture_intro_to_deep_rl}}
   \label{fig:q_network  }
 \end{figure}
 
@@ -773,7 +764,7 @@ Tranferring the TD error from equation \ref{eq:td_update} into the context of ne
 
 One limitation of online learning is that one transition needs to be visited many times for the network to learn appropriate weights ("many updates per transition" \cite{lecture_dqn}). \\
 
-A solution is to create a dataset of all the experienced data so far collected by the agent." The advantage is that any transition can be sampled from the replay buffer and trained on more than once \cite{lecture_dqn}. 
+A solution is to create a dataset of all the experienced data so far collected by the agent. The advantage is that any transition can be sampled from the replay buffer and trained on more than once \cite{lecture_dqn}. 
 
 \subsection{Mini batch learning }
 
@@ -782,18 +773,17 @@ we update the function in a consecutive manner (going by consecutive states in t
 
 One solution is to sample transitions from the replay buffer not in the order they were collected but in random mini-batches\cite{lecture_dqn}. This causes a more uniform, even learning and update of the Q function \cite{lecture_dqn}.  
 
-\begin{figure}[h!]
+\begin{figure}[H]
   \centering
 %   \hspace*{-1cm}  
   \includegraphics[scale=0.5]{figures/replay_buffer.PNG}
-  \caption{Deep Q -learning algorithm with replay buffer; Source: Lecture}
+  \caption{Deep Q -learning algorithm with replay buffer; Source:\cite{lecture_dqn}}
   \label{fig:replay_buffer}
 \end{figure}
 
 \subsection{Prioritised Experience Replay}
 
-On top of sampling transitions in minibatches is a uniform random manner it may be useful to note that some transitions might be more important for learning and 
-sampling them in particular more than others may be more useful \cite{lecture_dqn}. Hence the idea of prioritised experience replay buffer. \\
+On top of sampling transitions in minibatches in a uniform random manner it may be useful to note that some transitions might be more important than others and sampling them more frequently may boost the learning process. \cite{lecture_dqn}. Hence the idea of prioritised experience replay buffer. \\
 
 A way to tell which transitions are more important than others is to see the magnitude of the prediction error $\delta = R + \gamma \max_a Q_{\theta}(S', a) - Q_{\theta}(S, A)$. 
 Intuitively greater error results in greater learning.\\
@@ -802,18 +792,18 @@ So each transition is assigned a weight $w_i = |\delta| + \epsilon$, where $\eps
 \begin{align}
     p_i = \frac{w_i^{\alpha}}{\sum_k w^{\alpha}_k}
 \end{align}
+
 Where $\alpha$ determines how much individual transitions are prioritized over the others with $\alpha = 0$ being equivalent to uniform sampling.\\
 
 It only makes sense to update only the weights for transitions that were sampled, since we already have their $\delta$ error values\cite{lecture_dqn}. For new transitions pushed to the replay buffer, assign the current maximum weight to ensure that they can be sampled and that sufficient exploration is done.
 
-\begin{figure}[h!]
+\begin{figure}[H]
   \centering
 %   \hspace*{-1cm}  
   \includegraphics[scale=0.5]{figures/prioritized_buffer.PNG}
-  \caption{Prioritised Experience Replay Algorithm; \cite{lecture_dqn}: \cite{lecture_dqn}}
+  \caption{Prioritised Experience Replay Algorithm; Source: \cite{lecture_dqn}}
   \label{fig:replay_buffer}
 \end{figure}
-\newpage
 
 \section{Target Network }
 
@@ -831,7 +821,7 @@ it results in a rocketing effect with the Q function basically "chasing its own 
 \end{figure}
 
 This correlation between adjacent states can be tracked down to the $\max_a Q_{\theta}(S', a)$ term in the update step. Hence the 
-extension to DQN is to introduce a separate Target Network $\hat{Q}$ to calculate the prediction error. This allows Q network to learn independently from the generalisation effect \cite{lecture_dqn}. Every now and then \hat{Q} is set to Q.
+extension to DQN is to introduce a separate Target Network $\hat{Q}$ to calculate the prediction error. This allows Q network to learn independently from the generalisation effect \cite{lecture_dqn}. Every now and then $\hat{Q}$ is set to Q.
 
 \begin{figure}[H]
 \centering
@@ -873,15 +863,6 @@ or:
 % \subsection{Cross Entropy }
 % \subsection{method for continuous spaces (relevant?)}
 % \subsection{model predictive control}
-
-
-
-
-
-
-
-
-
 
 \chapter{Learning Model}
 \section{Distributed Learning}
