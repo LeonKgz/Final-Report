@@ -803,25 +803,123 @@ S \longleftarrow S^{'}\;\\
 % \subsection{model predictive control}
 
 \chapter{Learning Model}
-\section{Distributed Learning}
-
-The ideal situation would of course be having one learning agent 
-per LoRa node so they could learn a policy specifically suited for
-that one node. But the case is that typically nodes located 
-near each other can benefit from one policy [CITATION or EXPERIMENT]
-so in order not to waste memory on slightly different models 
-for nodes located near each other nodes can be grouped into clusters
-and share learning weights.
 
 
 
-Despite first prototypes starting with 
+\section{Related work in the field}
 
-\section{LoRa State}
-\section{LoRa Action}
-\section{LoRa Reward}
+There have a been a few attempts at implementing resource 
+optimization with Reinforcement Learning. \\
 
-\section{SINR}
+In this paper \cite{rl_lora_original} Deep Q learning is applied
+to resource optimization for LoRaWAN networks and produce
+promising results for energy consumption but not for throughput. Their approach however is the most relatable in terms of 
+the learning model used.\\
+
+In this paper \cite{rl_lora_sarsa_dqn} both SARSA and DQN
+approaches are applied, former used for light traffic and the
+latter for heavy traffic, due state space growing based on the 
+current number of users. On top of that the actions in 
+that paper mean swapping users in and out of different channels.
+
+In this paper \cite{rl_distributed_mab} a distributed learning approach was taken with the naive tabular multi-agent multi-arm bandit (MAB) implementation.
+
+ - Related work and whats similar and whats different
+
+\section{Learning Model}
+
+In case of ADR optimization the gateway executes the algorithm
+and returns the desired parameters to the node via a downlink 
+message. Here, however I've decided to implement the learning 
+agent on the node side, unlike for example in this paper 
+\cite{rl_lora_sarsa_dqn} where the agent is abstracted over the 
+nodes. In my implementation however each of the nodes
+contributes to the learning process and takes a portion of the
+agency role on itself. It contributes to the learning process
+both tabular and deep through the data it individually collects.
+
+\section{Distributed Learning and Clustering}
+The ideal situation would of course be having one learning agent
+per LoRa node so they could learn a policy specifically suited for that one node. But the case is that typically nodes located 
+near each other can benefit from one policy as the authors of this paper \cite{rl_lora_original} recognized. However 
+in that paper nodes a grouped together based on their 
+distance from the node and so clusters are of a circular 
+form. [CITATION or EXPERIMENT] I wanted to try and make clusters
+even more local based and divided the simulation cell into 
+square sectors of adjustable size as shown in the figure 
+\ref{fig:my_sectors} below.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.7]{figures/my_sectors.PNG}
+  \caption{Grouping of nodes together with one cluster highlighted with red. Sector size = 100}
+  \label{fig:my_sectors}
+\end{figure}
+
+So in order not to waste memory on slightly different models for nodes located near each other nodes can be grouped into clusters and share Q function (or learning weights
+in case of a deep model). 
+
+\subsection{Reward}
+
+In this paper since NOMA is introduced and SINR model is 
+implemnted in order to include throughput as metric into the
+reward. Throughput $T$ can ba calculated as follows: 
+\begin{align}
+T = log_2(SINR + 1)
+\end{align}
+
+Furthermore in order to minimize energy consumed at nodes I 
+include the recirecal of energy consumed per bit $E_{bit}$ to the reward
+value. So as a result we get:
+\begin{align}
+    reward = \frac{T}{E_{bit}}
+\end{align}
+
+\subsubsection{Reward collection}
+
+One of the main differences between a classical reinforcement
+learning model and the LoRa simulator in question is the immediateness of the reward, since in the LoRa simulation the immediate actions don't have an immediate effect on the environment and instead are delayed. The question then arises how to determine that delay and collect the rewards and the right time. \\
+
+As described above each node goes through a cycle (implemented 
+as a while loop in the simulation). It constantly repeats
+a simple set of actions: sleep, send uplink transmission, sleep,
+receive downlink transmission or confirm that the uplink 
+packet collided. So naturally I decided to establish this flow:
+select and take an action then send the uplink packet,
+confirm the state of the downlink transmission, compute
+the reward and learn from it. There are other potential 
+ways to establish the needed delay, wait for longer, maybe 
+establish more wait time but this implementation is the 
+simplest one. As in case of a successful uplink transmission
+the action taken at the beginning should have an immediate effect on the throughput and energy values of that packet 
+which should've manifested themselves by the time the receive
+windows for the downlink packets are opened. 
+
+\subsection{Action space}
+\subsubsection{Action space traversal}
+\subsection{State space}
+In this simulation I've made the state space adjustable 
+so it is possible to run the state space consisting of any 
+combination of these parameters: spreading factor (SF), 
+transmission power (TP), channel (frequency), received signal
+strength (RSS), signal-to-interference-plus-noise ratio (SINR),
+energy consumed per bit, packet ID and number of packets
+
+\section{Code implementation}
+\subsection{Modifications for NOMA and its effects on execution}
+The main simulation aspect that enabling NOMA affects is the 
+order in which incoming uplink packets are processed by gateway.
+
+For that matter a \texttt{NOMA} object is introduced. It is 
+launched in a way similarly to nodes. It executes a loop
+until the end of the simulation time and periodically checks
+for packets in the air that have not collided. If there are any
+it picks than the one with the strongest received signal 
+strength for the gateway to decode. \texttt{AirInterface} keeps
+track of packets in the air with a list sorted by the signal
+strength for convenience. 
+
+\subsubsection{SINR}
 The \texttt{SINR Model} is implemented similarly to how \texttt{SNR Model} was implemented in the original simulator \cite{simulator}. The model calculates signal-to-interference noise ratio (SINR) for the received signal strength values of packets in the air according to this formula [CITE WIKIPEDIA???]:
 \begin{align}
     \text{SINR}(x) = \frac{P}{I + N} \label{eq:sinr}
@@ -842,3 +940,76 @@ decoded apriori \cite{noma_original}.\\
 \begin{align}
     \text{throughput} = \text{$log_{2}$}(\text{sinr} + 1)
 \end{align}
+
+
+
+\subsection{ Implemntation of learning agents deep and tabular motivation}
+
+For this project I have implemented 2 kinds of learning 
+agents: tabular and deep. Tabular being the classic 
+reinforcement learning model keeping track of the Q values
+in a table matching state-action pairs to the estimated return.\\
+
+I also implemented the newer deep implementation whereby a Q
+function is approximated by a neural network mapping 
+states to return estimates for each possible action. 
+
+Since the difference is minor both Q-learning and SARSA are
+implemented for tabular and deep type models. Also a 
+Monte-Carlo style update rule is attempted. 
+
+\subsection{ for both sarsa and q-learning}
+\subsection{ basic graphs showing perofrmance}
+\subsection{implementations for GLIE , Robbins Monroe, Replay BUffer, batch loss, learning , }
+\subsection{target network, double deep}
+\subsection{}
+\subsection{clustering }
+\subsection{main learning loop within Node.py}
+\section{Optimizations}
+\subsection{Weight normalization}
+\subsection{Batch normalization}
+\section{Hypertuning}
+\section{Evaluation}
+Comparison to other models and implementations
+
+
+% Despite first prototypes starting with 
+
+% \section{LoRa State}
+% \section{LoRa Action}
+% \section{LoRa Reward}
+
+\chapter{Modifications to the code}
+
+\section{Confirming the simulation legitimacy}
+As mentioned above the simulator code was described in this 
+paper \cite{simulator}. The authors presented some plots against
+which I could compare. This is the only comparison to legitimize
+this framework in it's authors claims. Here are the plots from
+the original paper:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{figures/original_plots.PNG}
+  \caption{Plots from the original simulator framework paper \cite{simulator}}
+  \label{fig:my_sectors}
+\end{figure}
+
+And here are my plots for equivalent parameter settings, though
+some numerical values had to be inferred indirectly:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{figures/my_plots_1.PNG}\\
+\hspace*{1.3cm}  
+\includegraphics[scale=0.5]{figures/my_plots_2.PNG}
+  \caption{Plots from the original simulator framework paper \cite{simulator}}
+  \label{fig:my_sectors}
+\end{figure}
+
+Generally the plots seem to follow same trends and portray 
+similar values except for a couple of anomalies in the
+recordings the values produced by running the simulation
+seem to resemble the original paper and the paper along with
+the code is trusted and legitimized to that extent. 
+
