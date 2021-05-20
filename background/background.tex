@@ -683,7 +683,8 @@ figure \ref{fig:q_network} state space can become continuous, while action space
   \label{fig:q_network}
 \end{figure}
 
-Adapting the Temporal Difference Error term from the TD update rule \ref{eq:td_update} into the context of neural network cost function we get \cite{lecture_intro_to_deep_rl}:
+To design a cost function for such a neural network 
+one can take the temporal difference error from the update tule \ref{eq:td_update} as the basis \cite{lecture_intro_to_deep_rl}:
 \begin{align}
     C(\theta, D) = [R + \gamma \max_a Q(S', a) - Q(S, A)]^2
 \end{align}
@@ -709,6 +710,22 @@ S \longleftarrow S^{'}\;\\
 \end{algorithm}\\
 
 \subsection{Overfitting}
+
+Overfitting is a common problem of machine learning 
+model training in the context of supervised learning.
+A potential pitfall is that after training the model
+might be tuned too much towards the training data
+and will not generalise on previously unseen data well.
+To tackle this issue various techniques were introduced, 
+e.g. early stopping. \\
+
+In the Reinforcement Learning domain, however the 
+overfitting issue cannot arise in the same sense as in
+supervised setting, since the agent is constantly 
+seeing new data and there is no training period where
+the "right" actions are well defined and compared against
+as in image classification for example.
+
 % Like any neural network it can overfit but the random starts nature of LR counteracts that in effect [QnA]
 
 \section{Experience Replay Buffer}
@@ -746,7 +763,8 @@ So each transition is assigned a weight $w_i = |\delta| + \epsilon$, where $\eps
 
 Where $\alpha$ determines how much individual transitions are prioritized over the others with $\alpha = 0$ being equivalent to uniform sampling.\\
 
-It only makes sense to update only the weights for transitions that were sampled, since we already have their $\delta$ error values\cite{lecture_dqn}. For new transitions pushed to the replay buffer, assign the current maximum weight to ensure that they can be sampled and that sufficient exploration is done.
+It only makes sense to update only the weights for transitions that were sampled, since their $\delta$ error values\cite{lecture_dqn} are already known. Newly 
+submitted transitions are assigned the current maximum weight to ensure that they can be sampled and that sufficient exploration is done.
 
 % \begin{figure}[H]
 %   \centering
@@ -758,10 +776,10 @@ It only makes sense to update only the weights for transitions that were sampled
 
 \section{Target Network }
 
-As we have seen before with mini-batch sampling having an approximated Q function introduces certain challenges. 
-For example when adjacent states are trained on multiple times
-it results in a rocketing effect with the Q function basically "chasing its own tail" in a sense \cite{lecture_dqn}.  
-\begin{figure}[h!h!h!h]
+Another problem introduced by generalisation is when adjacent states are trained on multiple times
+it results in a rocketing effect \cite{lecture_dqn}.  
+
+\begin{figure}[H]
 \centering
 \includegraphics[scale=0.5]{figures/target 1.PNG}
 \includegraphics[scale=0.5]{figures/target 2.PNG}\\
@@ -781,7 +799,7 @@ extension to DQN is to introduce a separate Target Network $\hat{Q}$ to calculat
   \label{fig:target_network}
 \end{figure}
 
-Here's the updated algorithm for Deep Q-learning with target network extension.
+% Here's the updated algorithm for Deep Q-learning with target network extension.
 
 % \begin{figure}[H]
 % \centering
@@ -840,21 +858,21 @@ S \longleftarrow S^{'}\;\\
 
 \section{Related work in the field}
 
-There have a been a few attempts at implementing resource 
-optimization with Reinforcement Learning. \\
-
-In this paper \cite{rl_lora_original} Deep Q learning is applied
-to resource optimization for LoRaWAN networks and produce
-promising results for energy consumption but not for throughput. Their approach however is the most relatable in terms of 
-the learning model used.\\
-
-In this paper \cite{rl_lora_sarsa_dqn} both SARSA and DQN
-approaches are applied, former used for light traffic and the
-latter for heavy traffic, due state space growing based on the 
-current number of users. On top of that the actions in 
-that paper mean swapping users in and out of different channels.
-
-In this paper \cite{rl_distributed_mab} a distributed learning approach was taken with the naive tabular multi-agent multi-arm bandit (MAB) implementation.
+There have a been a few attempts at implementing resource optimization with Reinforcement Learning. For example the
+authors of this paper \cite{rl_lora_original} applied 
+Deep Q learning to resource optimization for LoRaWAN
+networks and produced promising results for energy
+consumption but not for throughput. Their approach
+however is the most relatable in terms of the learning
+model used. In this paper \cite{rl_lora_sarsa_dqn} both
+SARSA and DQNapproaches are applied, former used for
+light traffic and the latter for heavy traffic, due state
+space growing based on the current number of users. On
+top of that the actions in that paper mean swapping users
+in and out of different channels. The researchers here 
+\cite{rl_distributed_mab} took distributed learning
+approach with the naive tabular multi-agent multi-arm
+bandit (MAB) implementation.
 
 There have apparently been no such studies for NOMA LoRa 
 networks and this will be my contribution. 
@@ -1035,7 +1053,7 @@ authors claims. Here are the plots from the original paper:
 And here are my plots for equivalent parameter settings, though
 some numerical values had to be inferred:
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[scale=0.5]{figures/my_plots_1.PNG}\\
 \hspace*{1.3cm}  
@@ -1059,7 +1077,7 @@ For that matter a \texttt{NOMA} object is introduced. It is
 launched in a way similarly to nodes. It executes a loop
 until the end of the simulation time and periodically checks
 for packets in the air that have not collided. If there are any
-it picks than the one with the strongest received signal 
+it then picks the one with the strongest received signal 
 strength for the gateway to decode. \texttt{AirInterface} keeps
 track of packets in the air with a list sorted by the signal
 strength for convenience. 
@@ -1198,10 +1216,62 @@ transitions that were just trained on are updated regularly.
 
 \section{Neural Network Normalization}
 \subsection{Weight normalization}
+
+
+
 \subsection{Batch normalization}
 
 \chapter{Hypertuning and Performance}
-\section{Evaluation}
 Comparison to other models and implementations
 
+\section{State Space}
+From the plots it is apparent that including 
+\texttt{energy} dimension into the state space results
+in worse learning but that might also be due to 
+the implementation in the simulation of information 
+gathering.
 
+\section{Reward Function}
+
+I have tried putting different emphasis on either 
+throughput or energy via altering the basic reward f
+formala of $\frac{throughput}{energy}$. \\
+
+I have tried raising either numerator or denominator 
+to powers of 2 and 3 to see if this will cause learning
+to favour one more. The plots seem to suggest no apparent
+effect (that is prior to convergence). 
+
+\section{Slow Action Traversal}
+\section{GLIE and Robbins-Monroe convergence}
+Satisfying the convergence properties for both $\epslion$
+and $\alpha$ is crucial for learning as can be seen from
+these plots. 
+\subsection{rates of update}
+These can be updated at each step, i.e. every time a node
+queries an agent or every now and then resulting in a 
+slower decay. As we see from the graphs slowing down the
+decay rate for both $\epsilon$ and $\alpha$ naturally
+results in a slower convergence but ends up higher 
+and gives better rewards in the end.\\
+
+Slowing down epsilon decay doesn't seem to have much effect
+on the throughput but improves energy usage.\\
+
+Slowing down alpha decay improves both energy and 
+throughput and results in a reward jump as well. 
+
+
+\section{Tabular vs. Deep}
+\section{SARSA vs Q-learning}
+\section{Neural Network Depth}
+\section{Prioritised Experience Replay Buffer}
+\section{Target Network and Double Deep learning}
+\section{Sector size}
+As the plots show reducing sector size improves energy
+usage and produces better reward curve. This makes sense,
+since naturally each learning agent covers a smaller 
+more specialized area of less nodes.
+% \chapter{Evaluation}
+% \section{ADR}
+% \section{Comparing against other implementations}
