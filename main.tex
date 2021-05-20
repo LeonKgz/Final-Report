@@ -23,6 +23,39 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage[ruled,vlined]{algorithm2e}
+\usepackage[justification=centering]{caption}% or e.g. [format=hang]
+\usepackage{tikz}
+\usetikzlibrary{calc,trees,positioning,arrows,chains,shapes.geometric,%
+    decorations.pathreplacing,decorations.pathmorphing,shapes,%
+    matrix,shapes.symbols}
+
+\tikzset{
+>=stealth',
+  punktchain/.style={
+    rectangle, 
+    rounded corners, 
+    % fill=black!10,
+    draw=black, very thick,
+    text width=10em, 
+    minimum height=3em, 
+    text centered, 
+    on chain},
+  line/.style={draw, thick, <-},
+  element/.style={
+    tape,
+    top color=white,
+    bottom color=blue!50!black!60!,
+    minimum width=8em,
+    draw=blue!40!black!90, very thick,
+    text width=10em, 
+    minimum height=3.5em, 
+    text centered, 
+    on chain},
+  every join/.style={->, thick,shorten >=1pt},
+  decoration={brace},
+  tuborg/.style={decorate},
+  tubnode/.style={midway, right=2pt},
+}
 
 \newcommand{\vpi}[1]{$V^{\pi}(#1)$}
 \newcommand{\vpidash}[1]{$V^{\pi'}(#1)$}
@@ -51,13 +84,12 @@
 % Thanks mum!
 % \end{abstract}
 
-% \tableofcontents
+\tableofcontents
 % \listoffigures
 % \listoftables
 
 \input{introduction/introduction.tex}
 \input{background/background.tex}
-\input{project/project.tex}
 \input{evaluation/evaluation.tex}
 \input{conclusion/conclusion.tex}
 \input{appendix/appendix.tex}

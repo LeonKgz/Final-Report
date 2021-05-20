@@ -348,31 +348,36 @@ as Dynamic Programming and Monte-Carlo methods and how
 these rely on agent's Model Knowledge. The final Deep Reinforcement Learning model will be based of each of these 
 and will heavily rely on concepts introduced here as well. 
 
-\subsection{Dynamic Programming}
+\subsection{Policy Improvement}
 
-Dynamic Programming typically refers to a set of algorithms targeted at solving problems within well-defined systems such as Markov Decision Process \cite{lecture_dp}. Typically Dynamic Programming refers to solving a problem by breaking it into smaller sub-problems and solving them recursively which 
-fits in nicely with the recursive equation \ref{eq:value_function_def}.
-
-\subsubsection{Policy Improvement}
-
+The term "learning" implies that the agent iteratively attempts 
+to find a better policy than the current one it is using. 
 Through the Policy Improvement Theorem \cite{lecture_dp} it is 
-possible to accurately compare policies to each other and 
-through that choose which State Value (or State-Action Value) Function is better for optimization purposes. Based on that it 
-is possible to run a Policy Iteration Algorithm \cite{lecture_dp} which iterates
+possible to compare 2 policies against each other and determine
+which one is better based on the State Value or State-Action
+Value functions it induces. Based on that it is possible to run a
+Policy Iteration Algorithm \cite{lecture_dp} which iterates
 through all states of an MDP and different policies are evaluated and then improved on using the equation \ref{eq:value_function_def} derived earlier.
 
-\subsubsection{Strengths and weaknesses}
+\subsection{Dynamic Programming}
 
-DP introduces a useful concept: "bootstrapping" i.e. evaluating the current state value based on the neighbouring state value evaluations \cite{lecture_dp}. DP works well for moderate not resource hungry type of problems and suffers from the curse of dimensionality once the problem complexity increases. It also requires full knowledge of the Markov Decision Process which is not always available in practice.To address the weaknesses of dynamic programming Model-Free Learning comes into play.
+Dynamic Programming typically refers to a set of algorithms targeted at solving problems within well-defined systems such as Markov Decision Process \cite{lecture_dp}. Typically Dynamic Programming refers to solving a problem by breaking it into smaller sub-problems and solving them recursively. This kind
+approach can be taken with the MDP defined above in regards to 
+the recursive equation \ref{eq:value_function_def}. It is an
+example of "bootstrapping" where the value function
+for a current state is calculated from the value function 
+estimations for neighbouring states \cite{lecture_dp}. \\
+
+DP works well for moderate not resource hungry type of problems and suffers from the curse of dimensionality once the problem complexity increases. It also requires full knowledge of the Markov Decision Process which is not always available in practice. Hence the next subsection. 
 
 \subsection{Monte Carlo (MC) Methods}
 
 Monte-Carlo Methods are fundamentally different from the 
 Dynamic Programming approach in that they don't require the 
 full knowledge of the environment around the agent. They fall
-in the category of Model-free learning algorithms \cite{lecture_mfl}. The process is based fully off of the sampled experience.  \\
+in the category of Model-free learning algorithms \cite{lecture_mfl}. The process is based fully on the sampled experience.  \\
 
-The basic idea is to calculate the average return over traces of episodes, an episode being a sequence of state transitions sampled directly from the environment. A state transition includes information about original and new state, action taken and the immediate reward. One condition is that each episode must end in a terminal state. 
+The basic idea is to calculate the average return over traces of episodes, an episode being state transition of the type sampled directly from the environment. A state transition ($S, A, R, S'$) includes information about original state $S$, chosen action $A$, immediate reward $R$ and the resulting state $S'$. One condition is that each episode trace must end in a terminal state $S_{terminal}$. 
 
 \subsubsection{Monte-Carlo update rule}
 
@@ -429,27 +434,36 @@ Comparing this to the update rule for MC (equation \ref{eq:mc_increment}) we can
 Thus in the Temporal Difference Value estimation algorithm
 bootstrapping and direct sampling are combined \cite{lecture_mfl}. 
 
-\subsection{Bias-Variance tradeoff for TD and MC}
-In statistics the Bias-Variance tradeoff typically refers to 
-a compelled compromise between variance and bias, i.e. either high variance and low bias or low variance and high bias. \\
+% \subsection{Bias-Variance tradeoff for TD and MC}
+% In statistics the Bias-Variance tradeoff typically refers to 
+% a compelled compromise between variance and bias, i.e. either high variance and low bias or low variance and high bias. \\
 
-We can see that $R_t = r_{t+1} + \gamma r_{t+2} + \gamma ^2 r_{t+3} + ...$ is an unbiased estimate of $V^{\pi} (s_t)$ by the definition \ref{eq:value_function_def} of the state value function itself. So if the update rule for TD was $r_{t+1} + \gamma V^{\pi}(s_{t+1})$ it would be an unbiased estimate of $V^{\pi}(s_{t})$ (given $V^{\pi}(s_{t+1})$ is the true value function). But what we actually have is an estimate of the $V^{\pi}(s_{t+1})$ — $V$ ($r_{t+1} + \gamma V(s_{t+1})$ in the update rule) and so the expression for TD target is the biased estimate of $V^{\pi}(s_t)$ \cite{lecture_mfl}. \\
+% We can see that $R_t = r_{t+1} + \gamma r_{t+2} + \gamma ^2 r_{t+3} + ...$ is an unbiased estimate of $V^{\pi} (s_t)$ by the definition \ref{eq:value_function_def} of the state value function itself. So if the update rule for TD was $r_{t+1} + \gamma V^{\pi}(s_{t+1})$ it would be an unbiased estimate of $V^{\pi}(s_{t})$ (given $V^{\pi}(s_{t+1})$ is the true value function). But what we actually have is an estimate of the $V^{\pi}(s_{t+1})$ — $V$ ($r_{t+1} + \gamma V(s_{t+1})$ in the update rule) and so the expression for TD target is the biased estimate of $V^{\pi}(s_t)$ \cite{lecture_mfl}. \\
 
-Now if we compare TD and MC methods we can see that TD has some bias with MC being generally unbiased, at the same time TD has much lower variance since the estimate is based only on one transition (s, a, r, s'), while MC return estimate depends on many transitions (trace of episodes). The immediate implications of this is that MC methods have good convergence,
-if the simulation runs for long enough but TD is usually more efficient, so it requres less time to learn the value function \cite{lecture_mfl}.
+% Now if we compare TD and MC methods we can see that TD has some bias with MC being generally unbiased, at the same time TD has much lower variance since the estimate is based only on one transition (s, a, r, s'), while MC return estimate depends on many transitions (trace of episodes). The immediate implications of this is that MC methods have good convergence,
+% if the simulation runs for long enough but TD is usually more efficient, so it requres less time to learn the value function \cite{lecture_mfl}.
+
 % But due to its nature it is more sensitive to the initalization values for value function.
 
 \section{Model Free Control }
-Now we know how to estimate the value function with no model knowledge. The next step is to learn to optimize it and learn the optimal policy. 
+In this section I'll focus on the two well known 
+Temporal Difference algorithms approaching the problem
+from 2 perspectives. 
 
 % We cannot refer to MDP in 2 scenarios: MDP is simply unknown or MDP is well defined but too big to generalise/estimate (Curse of dimensionality).
 
-\subsection{Generalised Policy Iteration on State Value function} 
-One approach is Generalised Policy Iteration (similar in effect to the Monte-Carlo policy iteration above in figure \ref{fig:pia}). But we cannot apply the exact Policy improvement as before since the update rule for the policy being improved if you remember is: 
+\subsection{From V to Q} 
+First it needs to be said that applying Policy Iteration that is typically used in DP or MC contexts is not feasible here, since the Policy Improvement Theorem is based on the State Value Function estimation through Bellman's equation \cite{lecture_mfc}, as mentioned above. This is what the policy update step would look like for such iteration algorithm (remember equation \ref{eq:value_function_def})
 \begin{align}
     \pi(s) \leftarrow arg \max_{a} \sum_{s'} P^{a}_{ss'} [R^{a}_{ss'} + \gamma V(s')]
 \end{align}
-Here we need the knowledge of the state transition probabilities $P$ and the immediate reward function $R$. This is beyond our knowledge in a Model-free situation. Thus we can choose the policy greedily based on the state-action value function $Q(s, a)$ instead, which fits our Model-free narrative \cite{lecture_mfc}:  
+
+Here the state transition probability matrix $P$ and 
+the immediate reward function $R$ require model-knowledge
+which puts it outside of the model-free paradigm \cite{lecture_mfc}. One solution is to replace $V$ with 
+State-Action Value function $Q$, which fits the 
+model-free narrative better, since no model knowledge
+is required, only Q function is involved:  
 \begin{align}
     \pi(s) \leftarrow arg \max_{a} Q(s, a) 
 \end{align}
@@ -464,7 +478,7 @@ off-policy methods.
 % explore all options: on-policy and off-policy methods. \\
 \textbf{On-policy} methods use one policy to estimate value functions and choose actions (i.e. generate data), while \textbf{off-policy} methods separate these into 2 policies \cite{lecture_mfc}. 
 
-\subsection{On-policy soft control}
+\subsection{Soft control}
 
 Soft policies have a property such that all actions have a chance to be explored, i.e. $\pi(a, s) > 0$ $\forall s \in S, \forall a \in A.$\\
 
@@ -479,7 +493,11 @@ $\epsilon$-greedy policy with $\epsilon \in [0, 1]$:
     \end{cases}   
 \end{align}
 
-"Greedy in the Limit with Infinite Exploration" \cite{lecture_mfc} (GLIE) defines the convergence properties of a given policy under certain conditions. 
+An important convergence condition is "Greedy in the
+Limit with Infinite Exploration" \cite{lecture_mfc} 
+(GLIE). It specifies that in order for the learning model
+to converge, $\epsilon$ needs to be reduced over time 
+so that the $\lim_{k \to \infty} \epsilon_{k} = 0$ with $\epsilon_{k} = \frac{1}{k}$ for instance.
 
 % \subsection{batch learning}
 
@@ -526,10 +544,10 @@ from the typical transition an agent undergoes --
 \SetAlgoLined
 Arbitrarily initialize $Q(s, a), \forall s \in S, \forall a \in A$\;
 initialize S arbitrarily\;
-from S choose action A using the $\epsilon$-greedy policy\;
+from S choose action A using the $\epsilon$-greedy policy $\pi$\;
 \While {$S$ is not $S_{terminal}$}{
 take action A, observe R, S^{'}\; \\
-from $S^{'}$ choose action $A^'$ using the $\epsilon$-greedy policy\;
+from $S^{'}$ choose action $A^'$ using the $\epsilon$-greedy policy $\pi$ \;
 Q(S, A) \longleftarrow Q(S, A) + \alpha (R + \gamma Q(S', A') - Q(S, A))\;\\
 S \longleftarrow S^{'}\;\\
 A \longleftarrow A^{'}\;\\
@@ -538,7 +556,15 @@ A \longleftarrow A^{'}\;\\
 \label{algorithm:sarsa}
 \end{algorithm}\\
 
-\\SARSA converges under the conditions of GLIE sequence of policies $\pi^k(a, s)$ and Robbins-Monroe sequence of step-sizes $\alpha_t$. So $\epsilon$ and $\alpha$ need to be adjusted over time \cite{lecture_mfc}.
+On top of the GLIE convergence condition SARSA also needs
+to satisfy the Robbins-Monroe sequence of learning rates $\alpha$: 
+\begin{align*}
+    \sum^{\infty}_{t=1} \alpha_{t} &= \infty \\
+    \sum^{\infty}_{t=1} \alpha_{t}^{2} & < \infty \\
+\end{align*}
+
+So something like $\alpha_{k} = \frac{1}{2^{k}}$ will 
+work \cite{lecture_mfc}.
 
 % "One issue for SARSA is sparse rewards when the reward 
 % propagates down a trace through many episodes slowly. Two ways to deal with it are SARSA-Lambda and Hindsight Experience Replay"
@@ -566,8 +592,9 @@ In this way both the target and behaviour policies improve, target policy being 
 Arbitrarily initialize $Q(s, a), \forall s \in S, \forall a \in A$\;
 initialize S arbitrarily\;
 \While {$S$ is not $S_{terminal}$}{
-from S choose action A using the $\epsilon$-greedy policy\;
+from S choose action A using the $\epsilon$-greedy behaviour policy $\pi'$\;
 take action A, observe R, S^{'}\; \\
+Update Q function using the greedy target policy $\pi$, i.e. $\max_{a}$ term\; 
 Q(S, A) \longleftarrow Q(S, A) + \alpha (R + \gamma \max_{a} Q(S', a) - Q(S, A))\;\\
 S \longleftarrow S^{'}\;\\
 }
@@ -593,7 +620,7 @@ back to the starting position.
 
 Here Q-learning and SARSA produce different optimal policies. Q-learning gives the "optimal path" walking near the edge, while SARSA suggests a "safer path" further
 from the cliffs edge and despite the former clearly 
-being the preferred option Q-learning still performs 
+being the preferred option, Q-learning still performs 
 worse than SARSA based on the overall reward score as can be seen from figure \ref{fig:cliff_score}
 
 \begin{figure}[H]
@@ -624,14 +651,18 @@ Another important limitation affects the exploration ability of the learning age
 
 One solution to this is function approximation.
 
-\section{Deep learning}
+\section{Neural Network}
 
 A neural network consists of multiple layers of interconnected neurons each defined by a weight and bias that are applied to the incoming signal \cite{lecture_intro_to_deep_rl}.\\
 
 In supervised learning there's usually a reference that 
 the network is trained against, for example in classification the reference might be a label to an RGB image. The model then learns weights such that the desired outputs are produced on respective inputs \cite{lecture_intro_to_deep_rl} . \\
 
-This is achieved through backpropagation and gradient descent where the difference between current weights and desired weights is evaluated using a cost functions and applied until convergence \cite{lecture_intro_to_deep_rl} .\\
+This is achieved through backpropagation and gradient
+descent where the difference between current weights and
+desired weights is evaluated using a cost function and
+applied until the model converges to a desired state
+\cite{lecture_intro_to_deep_rl} .\\
 
 For example for a dataset with $x_i$ input paired with a $y_i$ label cost function would be: 
 \begin{align}
@@ -640,15 +671,16 @@ For example for a dataset with $x_i$ input paired with a $y_i$ label cost functi
 
 \section{Deep Q learning}
 
-So our goal now is to approximate the Q-table with a neural network that accepts state and outputs Q(s, a) 
-values for the whole range of actions \cite{lecture_intro_to_deep_rl}. Thus we make state space continuous, while action space is still discrete, like in figure \ref{fig:q_network  }.
+It is possible to approximate the Q-table with a neural network that accepts state and outputs Q(s, a) 
+values for the whole range of actions \cite{lecture_intro_to_deep_rl}. For example like in 
+figure \ref{fig:q_network} state space can become continuous, while action space is still discrete.
 
 \begin{figure}[H]
   \centering
 %   \hspace*{-1cm}  
   \includegraphics[scale=0.5]{figures/q_network.PNG}
   \caption{Example Q network for traversing a 2D space; Source: \cite{lecture_intro_to_deep_rl}}
-  \label{fig:q_network  }
+  \label{fig:q_network}
 \end{figure}
 
 Adapting the Temporal Difference Error term from the TD update rule \ref{eq:td_update} into the context of neural network cost function we get \cite{lecture_intro_to_deep_rl}:
@@ -824,7 +856,8 @@ that paper mean swapping users in and out of different channels.
 
 In this paper \cite{rl_distributed_mab} a distributed learning approach was taken with the naive tabular multi-agent multi-arm bandit (MAB) implementation.
 
- - Related work and whats similar and whats different
+There have apparently been no such studies for NOMA LoRa 
+networks and this will be my contribution. 
 
 \section{Learning Model}
 
@@ -832,10 +865,10 @@ In case of ADR optimization the gateway executes the algorithm
 and returns the desired parameters to the node via a downlink 
 message. Here, however I've decided to implement the learning 
 agent on the node side, unlike for example in this paper 
-\cite{rl_lora_sarsa_dqn} where the agent is abstracted over the 
+\cite{rl_lora_sarsa_dqn} where the agent is abstracted over the
 nodes. In my implementation however each of the nodes
 contributes to the learning process and takes a portion of the
-agency role on itself. It contributes to the learning process
+agency role upon itself. It contributes to the learning process
 both tabular and deep through the data it individually collects.
 
 \section{Distributed Learning and Clustering}
@@ -852,20 +885,63 @@ square sectors of adjustable size as shown in the figure
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.7]{figures/my_sectors.PNG}
-  \caption{Grouping of nodes together with one cluster highlighted with red. Sector size = 100}
+  \caption{Grouping of nodes together with one cluster highlighted with red. \\ Sector size = 100 meters}
   \label{fig:my_sectors}
 \end{figure}
 
 So in order not to waste memory on slightly different models for nodes located near each other nodes can be grouped into clusters and share Q function (or learning weights
-in case of a deep model). 
+in case of a deep model). \\
+
+Below is the diagram demonstrating the distribution of 
+learning agents over 3 node clusters.\\
+
+\begin{tikzpicture}
+  [node distance=.8cm,
+  start chain=going above,]
+  
+    \node[punktchain, join] (agent2) {Learning Agent 2\\ DQN $\theta_2$};
+    
+    \begin{scope}[start branch=right0]
+    \node[punktchain, on chain=going right] (agent3) {Learning Agent 3\\ DQN $\theta_3$};
+    \end{scope}
+    
+    \begin{scope}[start branch=left0]
+    \node[punktchain, on chain=going left] (agent1) {Learning Agent 1\\ DQN $\theta_1$};
+    \end{scope}
+    
+      \node (asym) [punktchain, join] (cluster2) {Node Cluster 2};
+      
+      \begin{scope}[start branch=left1,
+        every join/.style={->, thick, shorten <=1pt}, ]
+        \node[punktchain, on chain=going left]
+            (cluster1) {Node Cluster 1};
+      \end{scope}
+      
+      \begin{scope}[start branch=right1,]
+      \node (cluster3) [punktchain, on chain=going right] {Node Cluster 3};
+    \end{scope}
+      
+  \node[punktchain, join,] (air)    {\texttt{Air Interface}};
+  \node[punktchain, join,] (noma)   {\texttt{NOMA}};
+  \node[punktchain, join] (gateway) {\texttt{Gateway}};
+  
+  \draw[|-,-|,-, thick,] (cluster3.north) |-+(0,1em)-| (air.south);
+  \draw[|-,-|,-, thick,] (cluster1.north) |-+(0,1em)-| (air.south);
+  \draw [|-,-|,->, thick,] (agent1.north) -- (cluster1.south);
+  \draw [|-,-|,->, thick,] (agent2.north) -- (cluster2.south);
+  \draw [|-,-|,->, thick,] (agent3.north) -- (cluster3.south);
+
+\end{tikzpicture}
+
+
 
 \subsection{Reward}
 
 In this paper since NOMA is introduced and SINR model is 
-implemnted in order to include throughput as metric into the
-reward. Throughput $T$ can ba calculated as follows: 
+implemented in order to include throughput as metric into the
+reward. Throughput $T$ can be calculated as follows: 
 \begin{align}
-T = log_2(SINR + 1)
+T = log_2(\text{SINR}+ 1)
 \end{align}
 
 Furthermore in order to minimize energy consumed at nodes I 
@@ -896,19 +972,88 @@ which should've manifested themselves by the time the receive
 windows for the downlink packets are opened. 
 
 \subsection{Action space}
-\subsubsection{Action space traversal}
+Following the example of this paper \cite{rl_lora_original} the action space consists naturally of the \texttt{LoRaPacket} 
+parameters available to Node, i.e. spreading factor,
+transmission power and channel (frequency): 
+\texttt{[sf, tp, channel]} \\
+
+Potentially explore other parameters from 
+\texttt{LoRaParameters} as well.
+
 \subsection{State space}
 In this simulation I've made the state space adjustable 
 so it is possible to run the state space consisting of any 
-combination of these parameters: spreading factor (SF), 
+combination of these parameters (also inferred from
+\cite{rl_lora_original}): spreading factor (SF), 
 transmission power (TP), channel (frequency), received signal
 strength (RSS), signal-to-interference-plus-noise ratio (SINR),
 energy consumed per bit, packet ID and number of packets
+\texttt{[sf, tp, channel, rss, sinr, energy, packet\_id, num\_packet]}
 
-\section{Code implementation}
-\subsection{Modifications for NOMA and its effects on execution}
+\subsection{Slow Action Traversal}
+During hypertuning I experimented with different state spaces
+and noticed that between many there's no difference in 
+performance, the model seems to output similar results
+despite the state space. One of the possible causes for this
+is the extensibility of the action space. \\
+
+Unlike in classical RL problems where an agent's action causes
+a minor transition in the state space, here for example if 
+the state space is \texttt{[sf, channel, tp]} then the agent
+just can travel from an arbitrary to state to any other point
+in the state space, because that's how the action space 
+traversal is defined. \\
+
+So I decided to introduce a slower version of action space,
+where in each dimension only an incremental update is possible,
+so from \texttt{sf}7 an agent can only go to \texttt{sf}8 or \texttt{sf}9.
+
+% Despite first prototypes starting with 
+
+% \section{LoRa State}
+% \section{LoRa Action}
+% \section{LoRa Reward}
+
+\chapter{Modifications to code}
+
+\section{SimPy simulation framework}
+
+\section{Original framework legitimacy}
+As mentioned above the simulator code was described in this 
+paper \cite{simulator}. The authors presented some plots against
+which I could compare. This is the most obvious immediate 
+comparison one can make to legitimize this framework and it's
+authors claims. Here are the plots from the original paper:
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.6]{figures/original_plots.PNG}
+  \caption{Plots from the original simulator framework paper \cite{simulator}}
+  \label{fig:my_sectors}
+\end{figure}
+
+And here are my plots for equivalent parameter settings, though
+some numerical values had to be inferred:
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{figures/my_plots_1.PNG}\\
+\hspace*{1.3cm}  
+\includegraphics[scale=0.5]{figures/my_plots_2.PNG}
+  \caption{Plots generated locally}
+  \label{fig:my_sectors}
+\end{figure}
+
+Generally the plots seem to follow same trends and portray 
+similar values except for a couple of anomalies in the
+recordings the values produced by running the simulation
+seem to resemble the original paper and the paper along with
+the code is trusted and legitimized to that extent. 
+
+\section{NOMA}
 The main simulation aspect that enabling NOMA affects is the 
-order in which incoming uplink packets are processed by gateway.
+order in which incoming uplink packets are processed by 
+gateway. \\
 
 For that matter a \texttt{NOMA} object is introduced. It is 
 launched in a way similarly to nodes. It executes a loop
@@ -941,75 +1086,122 @@ decoded apriori \cite{noma_original}.\\
     \text{throughput} = \text{$log_{2}$}(\text{sinr} + 1)
 \end{align}
 
+% \subsection{Clustering implementation}
+
+\section{Learning Models}
+
+For most of the project I have focused on Temporal Difference
+style learning involving evaluating and improving the Q
+function. I have had a go at both naive tabular implementation
+mapping State-Action pairs to expected returns and the 
+function appoximation of Q with a neural network. 
+In particular I have compared side by side Q-learning and SARSA
+as their implementation is very similar to each other. \\
+
+Due to its simplicity a Monte-Carlo style update is also 
+attempted.
+ 
+\subsection{Learning Agent Interface}
+Two learning agents are implemented for Tabular and Deep Q approximation. Despite that they follow the same interface
+which allows to switch between them seamlessly so the Node
+doesn't need to explicitly know whether he is assigned a 
+tabular agent or a deep agent. The interface is as follows:
+\texttt{choose\_next\_action} and \texttt{train}. The former 
+follows the $\epslion$-greedy policy and chooses the next 
+action accordingly as described above. The latter accepts
+a transition from nodes assigned to it and updates the Q table
+or the neural network accordingly. For the deep implementation
+the network is trained on the temporal difference error squared
+as described above. \\
+
+\subsubsection{Node taking partial agency}
+
+The node is directly involved in the learning process. 
+It calculates its current state and reward for itself thus
+producing  unique transition traces which the agent learns from. 
+What it does fetch from outside is the next action it should
+take. It gets it from the agent and all nodes within a cluster
+are fetching actions from one agent, but for each of them
+the result will depend on their unique state.\\
+
+In this way the agent benefits from all the nodes assigned to 
+it as they all contribute to learning, be it a naive tabular or
+deep implementation.
+
+\subsection{Tabular Q}
+Tabular Q function is implemented as a \texttt{pytorch} 
+tensor mapping the state space \texttt{tp, sf, channel} to 
+a list of Q values for all possible actions, each associated
+with the index in that list for convenience. Action space 
+is subject to hypertuning as well with slow action traversal
+available for each action parameter \texttt{sf, tp} or 
+\texttt{channel}. For each the slow action space simply 
+reduces to \texttt{[-1, 0, +1]} where +1 and -1 means traversing 
+the next largest or smallest value in the defined \texttt{LoRa.Parameters} range, for example, given 
+\texttt{TRANSMISSION\_POWERS = [2, 5, 8, 11, 14]} if the current 
+\texttt{tp} value is 8, then +1 action will result in \texttt{tp} = 11 and -1, repsectively, in \texttt{tp} = 5. In this way 
+the agent is closer to a robot walking in a maze and resembles 
+most classic reinforcement learning problems.
+
+\subsection{Deep Q}
+Deep Q network maps state space to action space in the same way
+as tabular does, the difference being adjustability of the state
+space as this only affects the input dimensions of the network.
+So various other values such as SINR and RSS can be added to the 
+state space. This is precisely why the latter is preferred 
+as it allows for flexibility in implementation and as we'll 
+see later it converges much faster. \\
+
+Deep Q is represented by a \texttt{Module} class, which is 
+the building class for neural networks in \texttt{pytorch}.
+The neural network is formed by an adjustable number of 
+pairs of Linear Layers and ReLU activation functions.
+Thus depth of the model becomes another subject of 
+hypertuning. \\
 
 
-\subsection{ Implemntation of learning agents deep and tabular motivation}
 
-For this project I have implemented 2 kinds of learning 
-agents: tabular and deep. Tabular being the classic 
-reinforcement learning model keeping track of the Q values
-in a table matching state-action pairs to the estimated return.\\
+\subsubsection{Neural Network}
 
-I also implemented the newer deep implementation whereby a Q
-function is approximated by a neural network mapping 
-states to return estimates for each possible action. 
+For the purposes of training a neural network \texttt{pytorch}
+Python library is used. It provides extensive functionality
+for machine learning and various additional optimizations.
 
-Since the difference is minor both Q-learning and SARSA are
-implemented for tabular and deep type models. Also a 
-Monte-Carlo style update rule is attempted. 
+\subsection{Model Convergence}
+Two conditions that in theory ensure convergence of the 
+learning model are epsilon and alpha decay according to 
+GLIE and Robbin-Monroe respectively. As mentioned above.
+The plots do seem to suggest significant improvement for the
+reward function after they are put in place.\\
 
-\subsection{ for both sarsa and q-learning}
-\subsection{ basic graphs showing perofrmance}
-\subsection{implementations for GLIE , Robbins Monroe, Replay BUffer, batch loss, learning , }
-\subsection{target network, double deep}
-\subsection{}
-\subsection{clustering }
-\subsection{main learning loop within Node.py}
-\section{Optimizations}
+PLOT\_HERE
+
+\subsection{Mitigating Generalisation}
+\subsubsection{Double Deep Q-learning with Target Network}
+\texttt{target\_network} is initialized as an exact copy of the 
+\texttt{q\_network} and is used during training to pick the next 
+optimal action as described in the background section. 
+\texttt{target\_network} weights are synchronized with the
+weights of \texttt{q\_network} every 10 steps as defined by the 
+\texttt{target\_update\_rate}. Subject to hypertuning?
+
+\subsubsection{Prioritised Replay Buffer}
+\texttt{Replay Buffer} is a separate object keeping a buffer
+of transitions of size 50 and respectively weights for each one 
+of those transitions. Each time a new transition is submitted
+it is assigned the maximum current weight. Transitions are 
+sampled in batches of 10. They are picked based on the 
+probability distribution derived from their respective weights
+as described in the background section. As weights are derived 
+from the loss each transition induces all weights for 
+transitions that were just trained on are updated regularly. 
+
+\section{Neural Network Normalization}
 \subsection{Weight normalization}
 \subsection{Batch normalization}
-\section{Hypertuning}
+
+\chapter{Hypertuning and Performance}
 \section{Evaluation}
 Comparison to other models and implementations
 
-
-% Despite first prototypes starting with 
-
-% \section{LoRa State}
-% \section{LoRa Action}
-% \section{LoRa Reward}
-
-\chapter{Modifications to the code}
-
-\section{Confirming the simulation legitimacy}
-As mentioned above the simulator code was described in this 
-paper \cite{simulator}. The authors presented some plots against
-which I could compare. This is the only comparison to legitimize
-this framework in it's authors claims. Here are the plots from
-the original paper:
-
-\begin{figure}[H]
-\centering
-\includegraphics[scale=0.6]{figures/original_plots.PNG}
-  \caption{Plots from the original simulator framework paper \cite{simulator}}
-  \label{fig:my_sectors}
-\end{figure}
-
-And here are my plots for equivalent parameter settings, though
-some numerical values had to be inferred indirectly:
-
-\begin{figure}[H]
-\centering
-\includegraphics[scale=0.5]{figures/my_plots_1.PNG}\\
-\hspace*{1.3cm}  
-\includegraphics[scale=0.5]{figures/my_plots_2.PNG}
-  \caption{Plots from the original simulator framework paper \cite{simulator}}
-  \label{fig:my_sectors}
-\end{figure}
-
-Generally the plots seem to follow same trends and portray 
-similar values except for a couple of anomalies in the
-recordings the values produced by running the simulation
-seem to resemble the original paper and the paper along with
-the code is trusted and legitimized to that extent. 
 
