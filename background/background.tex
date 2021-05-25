@@ -1,11 +1,8 @@
 \chapter{LoRa}
 
-LoRa stands for \textbf{Lo}ng \textbf{Ra}nge. It is a transmission standard that aims at achieving long range reach with low power consumption, most commonly used by the Internet of Things devices. LoRa technology was first developed by Cycleo from Grenoble, France around 2010 with first prototypes implementing point-to-point communication for walkie-talkie and metering applications \cite{trinity_panel}. Later in 2012 the Cycleo team was aquired by Semtech, and released the chips for LoRa end devices and gateways \cite{origins}. \\
+LoRa stands for \textbf{Lo}ng \textbf{Ra}nge. It is a transmission standard that aims at achieving long range reach with low power consumption, most commonly used by the Internet of Things devices. LoRa technology was first developed by Cycleo from Grenoble, France around 2010 with first prototypes implementing point-to-point communication for walkie-talkie and metering applications \cite{trinity_panel}. Later in 2012 the Cycleo team was aquired by Semtech, and later released the chips for LoRa end devices and gateways \cite{origins}. \\
 
-The open non profit organisation LoRa Alliance emerged in 2015\cite{alliance}. 
-It is an association of companies with Semtech being one of
-its founding members \cite{alliance_founder} backing up the LoRaWAN protocol, insuring its
-global presence and acceptance. The total number of members of the alliance has surpassed 500 in 2017 \cite{500_members}. Among the notable members are Cisco, Amazon and Alibaba \cite{alliance_members}.
+The open, non-profit organization LoRa Alliance emerged in 2015 \cite{alliance}. It is an association of companies, with Semtech being one of its founding members \cite{alliance_founder}, backing up the LoRaWAN protocol, ensuring its global presence and acceptance. The total number of alliance members surpassed 500 in 2017 \cite{500_members}. Among the notable members are Cisco, Amazon and Alibaba \cite{alliance_members}. 
 
 \subsection{LoRa Spread Spectrum (Chirp Spread Spectrum)}
 
@@ -14,8 +11,7 @@ global presence and acceptance. The total number of members of the alliance has 
 Chird Spread Spectrum is a modulation scheme, whereby the frequency of a signal is changing linearly in time \cite{ieee_2007} as shown on the figure below \ref{fig:slope}. Such sweeps in frequency are called chirps. CSS is a modulation technique that has been around since 1940s
 \cite{semtech_spec} with applications in naval and air military and also observed in fauna \cite{origins}.\\
 
-In regards to LoRa CSS signals are bounded by the specified symbol duration and bandwidth. Symbol duration $t_s$ determines the time period over which the frequency sweep occurs and bandwidth defines the sweep range between starting frequency $f_{min}$ and $f_{max}$ on the diagram, i.e. bandwidth = $f_{max} - f_{min}$. Moreover the sweep can start at any frequency $f_0$ (determined by the number of input bits) between $f_{min}$ and $f_{max}$ and this means that a signal can be represented by multiple chirps as demonstrated in the
-diagram below. So if the sweep reaches $f_{max}$ before $t_s$ it 
+In regards to LoRa CSS signals are bounded by the specified symbol duration and bandwidth. This can be seen in the figure \ref{fig:slope} below. Symbol duration $t_s$ determines the time period over which the frequency sweep occurs and bandwidth defines the sweep range between starting frequency $f_{min}$ and $f_{max}$, i.e. bandwidth = $f_{max} - f_{min}$. Moreover the sweep can start at any frequency $f_0$ (determined by the number of input bits) between $f_{min}$ and $f_{max}$ and this means that a signal can be represented by multiple chirps. So if the sweep reaches $f_{max}$ before $t_s$ it 
 continues from $f_{min}$ until time = $t_s$. Thus if $f_0 = f_{min}$
 the signal will end at $f_{max}$ exactly without breaking up. 
 
@@ -44,7 +40,7 @@ According to the Semtech specification \cite{semtech_spec} symbol duration $t_s$
 Where $SF$ stands for spreading factor. Thus looking at figure \ref{fig:slope} SF determines the slope of the chirps, i.e. $\frac{B}{T_s}$ and the number of bits in the encoded information \cite{sf_article}, i.e. $f_0$.\\
 
 According to the spec \cite{semtech_spec} LoRa employs 6 spreading factors from 7 to 12. Spreading factors allow different signals to be transmitted over the same channel at the same time. As the specification claims it is possible due to the orthogonality of CSS signals of different spreading factors to each other \cite{semtech_spec}.
-Despite the claim of the orthogonality feature of spreading factors in CSS signals, it has been shown to be quasi-orthogonal and the decoding of signal at the receiver can be disrupted under certain conditions for example if the power of the interfering signal is stronger than the one to decode \cite{imperfect_1}.
+Despite the claim, spreading factors have been shown to be quasi-orthogonal and the decoding of signal at the receiver can be disrupted under certain conditions for example if the power of the interfering signal is stronger than the one being decoded \cite{imperfect_1}.
 
 \section{LoRaWAN}
 
@@ -86,13 +82,16 @@ European Telecommunications Standards Institute (ETSI) \cite{about_etsi}.\\
 
 What duty cycle basically controls is the fraction of time a device can be active on a particular sub-band (potentially on multiple channels) \cite{duty_cycle}. For example if the channel in 
 question is used for 1 time unit for every 10 time units,
-the device using it has a duty cycle of 10\%. If we take into account multiple channels (within one sub-band), then we count in the total fraction of time these channels are being used by the device \cite{duty_cycle}. [INFO ABOUT section 7.2.3 of the ETSI EN300.220 standard]
+the device using it has a duty cycle of 10\%. If we take into account multiple channels (within one sub-band), then we count in the total fraction of time these channels are being used by the device \cite{duty_cycle}.
+% [INFO ABOUT section 7.2.3 of the ETSI EN300.220 standard]
 
 \section{NOMA}
  
  Non-Orhogonal Multiple Access (NOMA) scheme is a relatively new concept first introduced in this publication \cite{noma_original} in 2013. As opposed to orthogonal
 frequency division multiplexing (OFDM), NOMA decodes multiple incoming signals, occupying the same time 
-or frequency resources, utilizing the power or code domain \cite{noma_imperial}. [DIAGRAM FROM TUTORIAL]. In the power domain implementation of NOMA the decoding is achieved via successive interference cancellation (SIC) based on the different power levels of the incoming signals \cite{noma_imperial} \cite{noma_original}. \\
+or frequency resources, utilizing the power or code domain \cite{noma_imperial}. 
+% [DIAGRAM FROM TUTORIAL]. 
+In the power domain implementation of NOMA the decoding is achieved via successive interference cancellation (SIC) based on the different power levels of the incoming signals \cite{noma_imperial} \cite{noma_original}. \\
 
 Basically what happens is that the incoming signals are decoded at the receiver in the order of decreasing channel gain, so the  strongest one is decoded first and the weakest is decoded last. Signals are decoded in that order so as to minimize the interference different signals experience \cite{noma_imperial}. After the strongest current signal is decoded, the total interference for other signals (to be decoded yet) is reduced by its largest component.\\
 
@@ -105,7 +104,8 @@ implementation (i.e. end-device/node being the receiver in question), we are int
  
 \section{LoRa Simulation Framework}
 
-In order to simulate a LoRaWAN network I have decided to pick one described in this paper \cite{simulator}. The developers of the paper have closely followed guidelines from The Things Network (TTN)\footnote{https://www.thethingsnetwork.org/}, which is an open community of volunteers that took on an initiative to contruct and maintain LoRaWAN stations around the world to reach its global coverage. On their website they also provide tutorials and guides to help people deploy LoRaWAN gateways and nodes. The simulation code is published in github \cite{simulator_github}. The developers have decided to simulate the LoRaWAN network via the \texttt{SimPy} which is a Python discrete-event simulation framework library\cite{simpy}. The simulation is mainly driven through continuous yielding of appropriate generator functions. A potential improvement to the code would be introduction of some sort of parallelisation.
+In order to simulate a LoRaWAN network I have decided to pick one described in this paper \cite{simulator}. The developers of the paper have closely followed guidelines from The Things Network (TTN)\footnote{https://www.thethingsnetwork.org/}, which is an open community of volunteers that took on an initiative to contruct and maintain LoRaWAN stations around the world to reach its global coverage. On their website they also provide tutorials and guides to help people deploy LoRaWAN gateways and nodes. The simulation code is published in github \cite{simulator_github}. The developers have decided to simulate the LoRaWAN network via \texttt{SimPy} which is a Python discrete-event simulation framework library\cite{simpy}. The simulation is mainly driven through continuous yielding of appropriate generator functions. 
+% A potential improvement to the code would be introduction of some sort of parallelisation.
 
 \subsection{Architecture}
 
@@ -115,8 +115,8 @@ In the following figure \ref{fig:architecture} is the scheme describing relation
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[scale=0.5]{figures/architecture.PNG}
-  \caption{Interaction between python classes: \cite{simulator}}
+  \includegraphics[scale=0.6]{figures/architecture.PNG}
+  \caption{Interaction between python classes in the LoRa framework \cite{simulator}}
   \label{fig:architecture}
 \end{figure}
 
@@ -124,11 +124,11 @@ In the following figure \ref{fig:architecture} is the scheme describing relation
 
 As can be seen from the figure \ref{fig:architecture} the \texttt{Node} object is characterized by the \texttt{Location}, \texttt{Energy Profile} and \texttt{LoRa Parameters} objects (among others) passed to its constructor during initialization as parameters.\\
 
-\texttt{Location} as its name suggests, simply holds the coordinates for a particular Node. The simulation assumes a rectangular cell, and the particular node location is typically randomly selected within the bounds of that rectangle. \\
+\texttt{Location} as its name suggests, simply holds the coordinates for a particular Node. The simulation assumes a rectangular cell, and the particular node location is uniformly at random selected within the bounds of that rectangle. \\
 
 \texttt{Energy Profile} holds information about the different power states and their duration in the execution loop of communication between a node and its respective gateway (sketched above in \ref{fig:class A}). The energy profile used in the original paper \cite{simulator}, as the authors stated was motivated by the energy consumption analysis of another project — LoRaWAN implementation for the EFM32 Happy Gecko develop board \cite{energy_profile}. The energy profile used is displayed in the figure below:
 
-\begin{figure}[h!]
+\begin{figure}[H]
   \centering
   \includegraphics[scale=0.7]{figures/energy_profile.PNG}
   \caption{Energy Profile devised from \cite{energy_profile}. Source: \cite{simulator}}
@@ -137,7 +137,7 @@ As can be seen from the figure \ref{fig:architecture} the \texttt{Node} object i
 
 The effect of implementing this energy profile can be seen in the figure \ref{fig:power_states} below; it displays, how the power states of a node develop in time:
 
-\begin{figure}[h!]
+\begin{figure}[H]
   \centering
   \hspace*{-1cm}  
   \includegraphics[scale=0.5]{figures/class A 2.PNG}
@@ -145,15 +145,18 @@ The effect of implementing this energy profile can be seen in the figure \ref{fi
   \label{fig:power_states}
 \end{figure}\\
 
-\texttt{LoRa Parameters} object holds information about the configuration of the uplink packets that the Node is going to send, such as its spreading factor, frequency (channel) and transmission power. These are the factors that play a crucial role in the resulting energy consumption at the node \cite{simulator}.
+\texttt{LoRa Parameters} object holds information about the configuration of the uplink packets that the Node is going to send, such as its spreading factor, frequency (channel) and transmission power. Subsequently these factors play an immediate role in the resulting energy consumption at the node.
+% \cite{simulator}.
 
 \subsection{AirInterface}
 
-\texttt{AirInterface} is the object via which \texttt{Node} and \texttt{Gateway} communicate. It processes the packets "in the air" and determines their airtime as well as simulating collisions between packets. It also defined by the \texttt{Propagation Model}.\\
+\texttt{AirInterface} is the object via which \texttt{Node} and \texttt{Gateway} communicate. It processes the packets "in the air" and determines their airtime as well as simulating collisions between packets. It is also defined by the \texttt{Propagation Model}.
+This model is used when determining the received signal
+strength of an incoming packet based on its transmission power parameter. \\
 
 \texttt{Propagation Model} calculates the path loss 
 of a signal traveling in the channel through the air.
-the formula is defined in the original paper \cite{simulator} :
+The formula is defined in the original paper \cite{simulator} :
 \begin{align}
     PL(d) = PL(d_0) + 10n\times log\frac{d}{d_0} + X_{\sigma} [dB] \label{eq:propagation_model}
 \end{align}
@@ -168,19 +171,27 @@ Where the following parameters are used. These measurements were taken by the au
 
 Collision model is not implemented as a separate object but through a collection of functions in \texttt{Air Interface}. The model implementation is motivated by the authors \cite{simulator} by the findings from another paper \cite{collision_conditions}, that looks at how reception overlap, carrier frequency, spreading factor and power can create conditions for a packet collision. The authors \cite{simulator} also assume that signals with different spreading factors are practically orthogonal and can be demodulated without colliding.\\
 
-\texttt{SNR} model was implemented in the original framework to
-calculate the Signal-to-Noise ratio values for the packets in the air, but in my implementation I'll use another metric 
-described later in my modifications.
+% \texttt{SNR} model was implemented in the original framework to
+% calculate the Signal-to-Noise ratio values for the packets in the air, but in my implementation I'll use another metric 
+% described later in my modifications.
 
 \subsection{Gateway}
 
 \texttt{Gateway} object is responsible for receiving 
-the uplink packets from the \texttt{Air Interface}. In order for a packet to come through it must not collide and have  a signal strength above that of gateway's specified sensitivity. In the original simulator \cite{simulator} \texttt{Gateway} is also responsible for executing the ADR algorithm. ADR is the algorithm, devised to minmize the energy consumption at nodes, operating mainly by estimating the appropriate TP and SF values for each uplink packet and sending them to the respective node (that sent the packet) via a downlink frame \cite{simulator}. The node that uses these values until a next update from the gateway. In the original simulator these values are calculated based on the SNR values of the received frames. 
-[INPUT DETAILS ON ADR and ADR itself maybe] \\
+the uplink packets from the \texttt{Air Interface}. In order for a packet to come through it must not collide and have  a signal strength above that of gateway's specified sensitivity. On top of that the gateway ensures that the duty cycle restrictions for each channel are satisfied. This is done through
+calculating off times, i.e. periods during which the 
+channel in question cannot be used. The calculation
+involves such \texttt{LoRa Parameters} as frequency,
+spreading factor and data rate. The gateway decides 
+whether the packet is discarded or the response in 
+the form of downlink is required. It also decides on the
+receive slots for the response, i.e. $RX1$ or $RX2$.\\
 
-In this project, however we are not going to implement any form of ADR and instead apply reinforcement learning tecnhiques to 
-decide on appropriate \texttt{LoRa Parameters} values for uplink frames.
+In the original simulator \cite{simulator} \texttt{Gateway} is also responsible for executing the ADR algorithm. ADR is the algorithm, devised to minmize the energy consumption at nodes, operating mainly by estimating the appropriate TP and SF values for each uplink packet and sending them to the respective node (that sent the packet) via a downlink frame \cite{simulator}. The node that uses these values until a next update from the gateway. In the original simulator these values are calculated based on the SNR values of the received frames. \\
+% [INPUT DETAILS ON ADR and ADR itself maybe] \\
 
+In this project, however I am not going to implement any form of ADR and instead apply reinforcement learning tecnhiques to 
+decide on appropriate \texttt{LoRa Parameters} values for uplink frames.\\
 
 % Due to the SF orthogonality assumption, the gateway can simultaneously receive up to 8 different packets on separate channels. [FALSE???]
 
@@ -417,7 +428,6 @@ learns from episodes of experience and like DP it makes use of bootstrapping \ci
 %   \label{fig:td}
 % \end{figure}
 
-\subsection{Update rule}
 The combination of DP and MC is manifested in the value function update rule for Temporal Difference:
 \begin{align}
   V(s_t) \longleftarrow V(s_t) + \alpha (r_{t+1} + \gamma V(s_{t+1}) - V(s_t)) \label{eq:td_update}
@@ -447,8 +457,8 @@ bootstrapping and direct sampling are combined \cite{lecture_mfl}.
 
 \section{Model Free Control }
 In this section I'll focus on the two well known 
-Temporal Difference algorithms approaching the problem
-from 2 perspectives. 
+Temporal Difference algorithms approaching the model-free
+setting from 2 perspectives. 
 
 % We cannot refer to MDP in 2 scenarios: MDP is simply unknown or MDP is well defined but too big to generalise/estimate (Curse of dimensionality).
 
@@ -649,7 +659,7 @@ state and action spaces it is harder to represent the real world accurately as t
 
 Another important limitation affects the exploration ability of the learning agent: each Q entry for subsequent state-action entries need to be updated independently despite obvious correlation between them.\\
 
-One solution to this is function approximation.
+One solution to this is function approximation. 
 
 \section{Neural Network}
 
@@ -736,10 +746,9 @@ A solution is to create a dataset of all the experienced data so far collected b
 
 \subsection{Mini batch learning }
 
-Another limitation of deep Q-learning is that since now Q is represented not by a table, but by a continous function, neighbouring state values will affect each other easily due to correlation between them \cite{lecture_dqn} . And if 
-we update the function in a consecutive manner (going by consecutive states in the order they were collected for example) this will cause the  Q-distribution to start changing rapidly and affect the untrained parts of the Q-network and cause uneven learning \cite{lecture_dqn}. \\
+Another limitation of deep Q-learning is that since now Q is represented not by a table, but by a continous function, neighbouring state values will affect each other easily due to correlation between them \cite{lecture_dqn} . If the function is updated in a consecutive manner (going by consecutive states in the order they were collected for example) this will cause the Q-distribution to start changing rapidly and affect the untrained parts of the Q-network and cause uneven learning. \\
 
-One solution is to sample transitions from the replay buffer not in the order they were collected but in random mini-batches\cite{lecture_dqn}. This causes a more uniform, even learning and update of the Q function \cite{lecture_dqn}.  
+One solution is to sample transitions from the replay buffer not in the order they were collected but in random mini-batches. This causes a more uniform, even learning and update of the Q function.  
 
 % \begin{figure}[H]
 %   \centering
@@ -865,7 +874,7 @@ networks and produced promising results for energy
 consumption but not for throughput. Their approach
 however is the most relatable in terms of the learning
 model used. In this paper \cite{rl_lora_sarsa_dqn} both
-SARSA and DQNapproaches are applied, former used for
+SARSA and DQN approaches are applied, former used for
 light traffic and the latter for heavy traffic, due state
 space growing based on the current number of users. On
 top of that the actions in that paper mean swapping users
@@ -895,8 +904,9 @@ per LoRa node so they could learn a policy specifically suited for that one node
 near each other can benefit from one policy as the authors of this paper \cite{rl_lora_original} recognized. However 
 in that paper nodes a grouped together based on their 
 distance from the node and so clusters are of a circular 
-form. [CITATION or EXPERIMENT] I wanted to try and make clusters
-even more local based and divided the simulation cell into 
+form. 
+% [CITATION or EXPERIMENT] 
+I wanted to try and make clusters even more local based and divided the simulation cell into 
 square sectors of adjustable size as shown in the figure 
 \ref{fig:my_sectors} below.
 
@@ -911,7 +921,7 @@ So in order not to waste memory on slightly different models for nodes located n
 in case of a deep model). \\
 
 Below is the diagram demonstrating the distribution of 
-learning agents over 3 node clusters.\\
+deep learning agents over 3 node clusters.\\
 
 \begin{tikzpicture}
   [node distance=.8cm,
@@ -955,15 +965,15 @@ learning agents over 3 node clusters.\\
 
 \subsection{Reward}
 
-In this paper since NOMA is introduced and SINR model is 
-implemented in order to include throughput as metric into the
-reward. Throughput $T$ can be calculated as follows: 
+Follwing the introduction of NOMA it makes sense to base
+the reward function to a respective metric such as SINR.
+Such metric is throughput $T$, which can be calculated as follows: 
 \begin{align}
 T = log_2(\text{SINR}+ 1)
 \end{align}
 
 Furthermore in order to minimize energy consumed at nodes I 
-include the recirecal of energy consumed per bit $E_{bit}$ to the reward
+include the reciprocal of energy consumed per bit $E_{bit}$ to the reward
 value. So as a result we get:
 \begin{align}
     reward = \frac{T}{E_{bit}}
@@ -972,20 +982,20 @@ value. So as a result we get:
 \subsubsection{Reward collection}
 
 One of the main differences between a classical reinforcement
-learning model and the LoRa simulator in question is the immediateness of the reward, since in the LoRa simulation the immediate actions don't have an immediate effect on the environment and instead are delayed. The question then arises how to determine that delay and collect the rewards and the right time. \\
+learning model and the LoRa simulator in question is the immediateness of the reward, since in the LoRa simulation the immediate actions don't have an immediate effect on the environment and instead are delayed. The question then arises how to determine that delay and collect the rewards at the right time. \\
 
 As described above each node goes through a cycle (implemented 
 as a while loop in the simulation). It constantly repeats
 a simple set of actions: sleep, send uplink transmission, sleep,
 receive downlink transmission or confirm that the uplink 
-packet collided. So naturally I decided to establish this flow:
+packet didn't reach the base station. So naturally I decided to establish this flow:
 select and take an action then send the uplink packet,
 confirm the state of the downlink transmission, compute
 the reward and learn from it. There are other potential 
-ways to establish the needed delay, wait for longer, maybe 
+ways to establish the needed delay, maybe 
 establish more wait time but this implementation is the 
 simplest one. As in case of a successful uplink transmission
-the action taken at the beginning should have an immediate effect on the throughput and energy values of that packet 
+the action taken at the beginning should have a direct effect on the throughput and energy values of that packet 
 which should've manifested themselves by the time the receive
 windows for the downlink packets are opened. 
 
@@ -993,19 +1003,18 @@ windows for the downlink packets are opened.
 Following the example of this paper \cite{rl_lora_original} the action space consists naturally of the \texttt{LoRaPacket} 
 parameters available to Node, i.e. spreading factor,
 transmission power and channel (frequency): 
-\texttt{[sf, tp, channel]} \\
+\texttt{[sf, tp, channel]}. \\
 
-Potentially explore other parameters from 
-\texttt{LoRaParameters} as well.
+A further suggestion would be to explore other parameters from \texttt{LoRaParameters}.
 
 \subsection{State space}
 In this simulation I've made the state space adjustable 
 so it is possible to run the state space consisting of any 
-combination of these parameters (also inferred from
+combination of these parameters (inferred from
 \cite{rl_lora_original}): spreading factor (SF), 
 transmission power (TP), channel (frequency), received signal
 strength (RSS), signal-to-interference-plus-noise ratio (SINR),
-energy consumed per bit, packet ID and number of packets
+energy consumed per bit, packet ID and number of packets:\\
 \texttt{[sf, tp, channel, rss, sinr, energy, packet\_id, num\_packet]}
 
 \subsection{Slow Action Traversal}
@@ -1017,14 +1026,12 @@ is the extensibility of the action space. \\
 
 Unlike in classical RL problems where an agent's action causes
 a minor transition in the state space, here for example if 
-the state space is \texttt{[sf, channel, tp]} then the agent
-just can travel from an arbitrary to state to any other point
+the state space is \texttt{[sf, channel, tp]} then the agent can just travel from an arbitrary to state to any other point
 in the state space, because that's how the action space 
 traversal is defined. \\
 
 So I decided to introduce a slower version of action space,
-where in each dimension only an incremental update is possible,
-so from \texttt{sf}7 an agent can only go to \texttt{sf}8 or \texttt{sf}9.
+where in each dimension only an incremental update is possible, e.g. from \texttt{sf}7 an agent can only go to \texttt{sf}8 or \texttt{sf}9.
 
 % Despite first prototypes starting with 
 
@@ -1083,7 +1090,8 @@ track of packets in the air with a list sorted by the signal
 strength for convenience. 
 
 \subsubsection{SINR}
-The \texttt{SINR Model} is implemented similarly to how \texttt{SNR Model} was implemented in the original simulator \cite{simulator}. The model calculates signal-to-interference noise ratio (SINR) for the received signal strength values of packets in the air according to this formula [CITE WIKIPEDIA???]:
+The \texttt{SINR Model} is implemented similarly to how \texttt{SNR Model} was implemented in the original simulator \cite{simulator}. The model calculates signal-to-interference noise ratio (SINR) for the received signal strength values of packets in the air according to this formula:
+% [CITE WIKIPEDIA???]:
 \begin{align}
     \text{SINR}(x) = \frac{P}{I + N} \label{eq:sinr}
 \end{align}
@@ -1098,12 +1106,7 @@ The interference is only calculated from the weaker signals, since we're assumin
 the gateway and thus all the stronger signals would be
 decoded apriori \cite{noma_original}.\\
 
-\texttt{SINR Model} also calculates throughput from SINR values. The need for throughput metric will be explained below. This formula [CITE WIKI???] is used:
-
-\begin{align}
-    \text{throughput} = \text{$log_{2}$}(\text{sinr} + 1)
-\end{align}
-
+\texttt{SINR Model} also calculates throughput from SINR values using the formula defined above.
 % \subsection{Clustering implementation}
 
 \section{Learning Models}
@@ -1158,8 +1161,7 @@ reduces to \texttt{[-1, 0, +1]} where +1 and -1 means traversing
 the next largest or smallest value in the defined \texttt{LoRa.Parameters} range, for example, given 
 \texttt{TRANSMISSION\_POWERS = [2, 5, 8, 11, 14]} if the current 
 \texttt{tp} value is 8, then +1 action will result in \texttt{tp} = 11 and -1, repsectively, in \texttt{tp} = 5. In this way 
-the agent is closer to a robot walking in a maze and resembles 
-most classic reinforcement learning problems.
+the agent is closer to a robot walking in a maze and resembles classic reinforcement learning problem setting.
 
 \subsection{Deep Q}
 Deep Q network maps state space to action space in the same way
@@ -1169,6 +1171,12 @@ So various other values such as SINR and RSS can be added to the
 state space. This is precisely why the latter is preferred 
 as it allows for flexibility in implementation and as we'll 
 see later it converges much faster. \\
+
+There are various other way to approximate $Q$ through neural
+networks allowing for continuous action spaces as well.
+But since the \texttt{LoRa Parameters}, used for constructing
+the action space I have, are discrete that is not necessary
+in this scenario/setting.\\
 
 Deep Q is represented by a \texttt{Module} class, which is 
 the building class for neural networks in \texttt{pytorch}.
@@ -1184,6 +1192,15 @@ hypertuning. \\
 For the purposes of training a neural network \texttt{pytorch}
 Python library is used. It provides extensive functionality
 for machine learning and various additional optimizations.
+For this problem I am using a combination of linear layers
+paired with ReLU activation functions. \\
+
+There are other well known deep architectures for neural
+network models such Convolutional Neural Networks or 
+Recurrent Neural Networks. For our input and output 
+a linear model suffices and fitting it to CNN and RNN
+type input would not make sense or be feasible?
+
 
 \subsection{Model Convergence}
 Two conditions that in theory ensure convergence of the 
@@ -1222,20 +1239,129 @@ transitions that were just trained on are updated regularly.
 \subsection{Batch normalization}
 
 \chapter{Hypertuning and Performance}
-Comparison to other models and implementations
+% Comparison to other models and implementations
+
+\section{GLIE and Robbins-Monroe convergence}
+Satisfying the convergence properties for both $\epsilon$
+and $\alpha$ is crucial for learning as can be seen from
+these plots. \\
+
+
+Here's a plot of effects of alpha and epsilon decay on tabular Q-learning. As we can see from the rewards plot introducing alpha decay with epsilon decay gives us the best result.
+\begin{figure}[H]
+\centering
+\hspace*{-1.1cm}  
+\includegraphics[scale=0.40]{plots/decays/tabular_q_learning_decay_SMALL.png}
+  \caption{Q learning with alpha and epsilon decay}
+\end{figure}
+
+Here's a plot of effects of alpha and epsilon decay on tabular SARSA. As we can see from the rewards plot introducing alpha decay alone gives us the best result. This makes sense since learning rate adjustment is crucial for SARSA as 
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/decays/decay_tabular_sarsa_SMALL.png}
+  \caption{SARSA with alpha and epsilon decay}
+\end{figure}
+
+As can be seen for both deep q learning and sarsa benefit from
+both epsilon and alpha decay. 
+
+\begin{figure}[H]
+\centering
+\hspace*{-1.1cm}  
+\includegraphics[scale=0.40]{plots/decays/deep_q_decay_SMALL.png}
+  \caption{Deep Q learning with alpha and epsilon decay}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\hspace*{-1.1cm}  
+\includegraphics[scale=0.40]{plots/decays/deep_sarsa_decay_SMALL.png}
+  \caption{Deep SARSA with alpha and epsilon decay}
+\end{figure}
+
+Here you can see all different flavours 
+compared against each other. Each one 
+has epslion and alpha decay enabled in the 
+same way. We can see that as expected deep models outperform their tabular counterparts and Q-learning in particular outperforms SARSA.
+
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/decays/all_decay_SMALL.png}
+  \caption{All implementations}
+\end{figure}
+
+\subsection{Decay rate}
+
+For all of the above a decay rate of 1 was used. What
+that means is that for both epsilon and alpha the decay 
+update happened every n steps, where n is the size of 
+a cluster, that the agent is assigned to. This makes 
+sense since ideally we would want a situation where
+all nodes got involved with $\epsilon$ and $\alpha$
+once before they got updated. Here are plots for both where i tried different decay rates. As it turns out for alpha in particular a rate of 0.5 produces better results than the default 
+one.
+
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/decays/epsilon_deep_q_SMALL.png}
+  \caption{Epsilon decay rate}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/decays/alpha_deep_q_SMALL.png}
+  \caption{Alpha decay rate}
+\end{figure}
+
+\section{Gamma}
+here's a straightforward progression for gamma 
+(discount factor) values. As we can see the model
+learns best when we put more weight on future
+decisions.
+
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/gamma/gamma_deep_q_SMALL.png}
+  \caption{Tuning gamma}
+\end{figure}
+
 
 \section{State Space}
 From the plots it is apparent that including 
-\texttt{energy} dimension into the state space results
-in worse learning but that might also be due to 
-the implementation in the simulation of information 
+\texttt{energy} dimension into the state space results in worse learning but that might also be due to the implementation in the simulation of information 
 gathering.
+
+Here is the comparison for fast action traversal. As we can see best options would
+be \texttt{[tp]} and \texttt{[tp, sf, channel, sinr]} as they
+produce similar rewards with former having 
+better throughput while the latter has more optimal energy usage. 
+
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/state_space/state_space_hypertuning_deep_q_SMALL.png}
+  \caption{Tuning state space}
+\end{figure}
+
+Here's one for slow action. As we can see \texttt{[tp, sf]} and
+\texttt{[tp, sf, channel]} are winning in this case.
+
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/state_space/state_space_slow_action_hypertuning_deep_q_SMALL.png}
+  \caption{Tuning state space}
+\end{figure}
 
 \section{Reward Function}
 
 I have tried putting different emphasis on either 
-throughput or energy via altering the basic reward f
-formala of $\frac{throughput}{energy}$. \\
+throughput or energy via altering the basic reward formula of $\frac{throughput}{energy}$. \\
 
 I have tried raising either numerator or denominator 
 to powers of 2 and 3 to see if this will cause learning
@@ -1243,30 +1369,121 @@ to favour one more. The plots seem to suggest no apparent
 effect (that is prior to convergence). 
 
 \section{Slow Action Traversal}
-\section{GLIE and Robbins-Monroe convergence}
-Satisfying the convergence properties for both $\epslion$
-and $\alpha$ is crucial for learning as can be seen from
-these plots. 
-\subsection{rates of update}
-These can be updated at each step, i.e. every time a node
-queries an agent or every now and then resulting in a 
-slower decay. As we see from the graphs slowing down the
-decay rate for both $\epsilon$ and $\alpha$ naturally
-results in a slower convergence but ends up higher 
-and gives better rewards in the end.\\
 
-Slowing down epsilon decay doesn't seem to have much effect
-on the throughput but improves energy usage.\\
+As described above slow action traversal is possible in 
+this scenario. Here are the plots comparing various
+slow action traversal combinations.
 
-Slowing down alpha decay improves both energy and 
-throughput and results in a reward jump as well. 
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/slow_action/slow_action_hypertuning_deep_q_SMALL.png}
+  \caption{Slow action traversal}
+\end{figure}
+
+ No apparent
+improvement can be seen from the default «fast»
+action traversal, but we do notice that slowly 
+traversing \texttt{tp} seems to improve throughput.
+At the same time having only \texttt{[tp]} as a state space performed best for fast action traversal, so if we combine them we get: 
+
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/slow_action/slow_action__state_space_tp_hypertuning_deep_q_SMALL.png}
+  \caption{Slow action traversal for \texttt{tp}}
+\end{figure}
+
+As we can see given a state space \texttt{[tp]} 
+having slow \texttt{tp} action traversal improves
+model performance.
+
+% \subsection{Rates of update}
+% These can be updated at each step, i.e. every time a node
+% queries an agent or every now and then resulting in a 
+% slower decay. As we see from the graphs slowing down the
+% decay rate for both $\epsilon$ and $\alpha$ naturally
+% results in a slower convergence but ends up higher 
+% and gives better rewards in the end.\\
+
+% Slowing down epsilon decay doesn't seem to have much effect
+% on the throughput but improves energy usage.\\
+
+% Slowing down alpha decay improves both energy and 
+% throughput and results in a reward jump as well. 
 
 
 \section{Tabular vs. Deep}
 \section{SARSA vs Q-learning}
 \section{Neural Network Depth}
 \section{Prioritised Experience Replay Buffer}
+
+Here's the plot for fast decay for epsilon and alpha along with slow action comparison.
+
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/replay_buffer/replay_buffer_with_slow_action_traversal_fast_decay_deep_q_SMALL.png}
+  \caption{buffer with fast decay}
+\end{figure}
+
+Here's the plot for slow decay for epsilon and alpha along with slow action comparison.
+
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/replay_buffer/replay_buffer_with_slow_action_traversal_deep_q_SMALL.png}
+  \caption{buffer with slow decay}
+\end{figure}
+
+As we can see with fast decay replay buffer does benefit Q-learning substantially especially with the addition of slow action traversal, but if we slow down the decay rate for epsilon and alpha it actually worsens 
+the default Deep Q-learning performance which still
+performs better than the most optimal one 
+if fast decay rates.
+
+\subsection{Buffer size}
+Here I conducted hypertuning on the buffer size.
+For each run the buffer size is scaled by the 
+respective number based on the cluster size, i.e.
+if the agent is assigned to 8 nodes, with scaling
+factor 3, buffer size is 24. 
+
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/replay_buffer/replay_buffer_scale_deep_q_SMALL.png}
+  \caption{Scaling replay buffer size}
+\end{figure}
+
 \section{Target Network and Double Deep learning}
+
+Here's a plot trying out differernt update rates
+for the target network as can be seen 2 is the optimal setting. That means target network is 
+updated every \texttt{cluster\_size * 2} steps.
+
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/target_double_deep/target_update_rate_deep_q_SMALL.png}
+  \caption{Scaling target network update rate}
+\end{figure}
+
+As can be seen based on the rewards and energy plots scale 2 is preferred.
+
+\section{Comparison against default}
+
+As we can see adding double deep learning along with
+replay buffer does not benefit the learning and default
+Q-learning still performs better (that is with decay
+rate of one).
+
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/target_double_deep/replay_double_SMALL.png}
+  \caption{Effect of introducing replay buffer and double deep learning}
+\end{figure}
+
 \section{Sector size}
 As the plots show reducing sector size improves energy
 usage and produces better reward curve. This makes sense,
