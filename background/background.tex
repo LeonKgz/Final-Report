@@ -1,5 +1,9 @@
 \chapter{LoRa}
 
+In this chapter I will introduce the reader to the 
+basics of LoRa, technologies behind it and also state
+the problem I will be addressing in this project.\\
+
 LoRa stands for \textbf{Lo}ng \textbf{Ra}nge. It is a transmission standard that aims at achieving long range reach with low power consumption, most commonly used by the Internet of Things devices. LoRa technology was first developed by Cycleo from Grenoble, France around 2010 with first prototypes implementing point-to-point communication for walkie-talkie and metering applications \cite{trinity_panel}. Later in 2012 the Cycleo team was aquired by Semtech, and later released the chips for LoRa end devices and gateways \cite{origins}. \\
 
 The open, non-profit organization LoRa Alliance emerged in 2015 \cite{alliance}. It is an association of companies, with Semtech being one of its founding members \cite{alliance_founder}, backing up the LoRaWAN protocol, ensuring its global presence and acceptance. The total number of alliance members surpassed 500 in 2017 \cite{500_members}. Among the notable members are Cisco, Amazon and Alibaba \cite{alliance_members}. 
@@ -11,7 +15,7 @@ The open, non-profit organization LoRa Alliance emerged in 2015 \cite{alliance}.
 Chird Spread Spectrum is a modulation scheme, whereby the frequency of a signal is changing linearly in time \cite{ieee_2007} as shown on the figure below \ref{fig:slope}. Such sweeps in frequency are called chirps. CSS is a modulation technique that has been around since 1940s
 \cite{semtech_spec} with applications in naval and air military and also observed in fauna \cite{origins}.\\
 
-In regards to LoRa CSS signals are bounded by the specified symbol duration and bandwidth. This can be seen in the figure \ref{fig:slope} below. Symbol duration $t_s$ determines the time period over which the frequency sweep occurs and bandwidth defines the sweep range between starting frequency $f_{min}$ and $f_{max}$, i.e. bandwidth = $f_{max} - f_{min}$. Moreover the sweep can start at any frequency $f_0$ (determined by the number of input bits) between $f_{min}$ and $f_{max}$ and this means that a signal can be represented by multiple chirps. So if the sweep reaches $f_{max}$ before $t_s$ it 
+In regards to LoRa CSS signals are bounded by the specified symbol duration and bandwidth. This can be seen in the figure \ref{fig:slope} below. The figure displays 2 signals, i.e. black solid line and blue dotted line. Symbol duration $t_s$ determines the time period over which the frequency sweep occurs and bandwidth defines the sweep range between starting frequency $f_{min}$ and $f_{max}$, i.e. bandwidth = $f_{max} - f_{min}$. Moreover the sweep can start at any frequency $f_0$ (determined by the number of input bits) between $f_{min}$ and $f_{max}$ and this means that a signal can be represented by multiple chirps. So if the sweep reaches $f_{max}$ before $t_s$ it 
 continues from $f_{min}$ until time = $t_s$. Thus if $f_0 = f_{min}$
 the signal will end at $f_{max}$ exactly without breaking up. 
 
@@ -63,7 +67,7 @@ One gateway can typically cover a range of hunderds of meters to tens of kilomet
 
 LoRaWAN implements ALOHA protocol where any device can wake up and transmit a message regardless of time. We are concerned with the messages between a LoRaWAN device and a gateway (base station). Requests from a node to a gateway are called uplink messages, and the responses are called downlink messages.  
 The communication scheme has an uplink-centric design and 
-LoRaWAN mandates this design for all devices implementing the protocol \cite{simulator}. In the figure \ref{fig:class A} one can see the typical cycle a node goes through while communicating with a particular gateway. The receive windows are allocated periods of time when the node is expecting 
+LoRaWAN mandates this design for all devices implementing the protocol \cite{simulator}. In the figure \ref{fig:class A} one can see the typical cycle a node goes through while communicating with a particular gateway: receive windows are allocated periods of time when the node is expecting 
 a downlink response that should follow its uplink request.
 
 \begin{figure}[h!]
@@ -73,7 +77,8 @@ a downlink response that should follow its uplink request.
   \label{fig:class A}
 \end{figure}
 
-There are 3 different device types based on the way to schedule the receive window slots for downlink communication: class A, B and C. Support for class A (demonstrated in the figure \ref{fig:class A} above) is compulsory with B and C being extensions to it. Class A devices schedule 2 receive windows following an uplink transmission, class B devices open receive windows periodically and class C devices listen for downlink messages continuously unless they are transmitting \cite{lora_alliance_spec}. 
+There are 3 different device types based on the way to schedule the receive window slots for downlink communication: class A, B and C. Support for class A (demonstrated in the figure \ref{fig:class A} above) is compulsory with B and C being extensions to it. Class A devices schedule 2 receive windows following an uplink transmission, class B devices open receive windows periodically and class C devices listen for downlink messages continuously unless they are transmitting \cite{lora_alliance_spec}. In this project I will
+focus on the devices of class A.
 
 \subsection{Duty cycle}
 For each band LoRaWAN devices operate in, they need to comply with the industrial, scientific and medical (ISM) regulations often set by the local government \cite{duty_cycle}. These include the duty cycle limitation that determines amount of time a device can be active within a bandwidth. For example in Europe the duty cycle standards are set by the 
@@ -111,9 +116,10 @@ In order to simulate a LoRaWAN network I have decided to pick one described in t
 
 The simulation is based on the LoRaWAN architecture of star-toppology network with mutiple nodes connected to a single gateway as already described above and in the figure \ref{fig:star}. The simulation supports only one gateway, so among other improvements would be introduction of multiple gateways in the simulated area. \\
 
-In the following figure \ref{fig:architecture} is the scheme describing relations between the most relevant simulation python classes (along with their names).
+In the following figure \ref{fig:architecture} is the scheme describing data exchange between the main
+simulation framework classes. Now I will look at each of them individually.
 
-\begin{figure}[h!]
+\begin{figure}[H]
   \centering
   \includegraphics[scale=0.6]{figures/architecture.PNG}
   \caption{Interaction between python classes in the LoRa framework \cite{simulator}}
@@ -187,23 +193,69 @@ whether the packet is discarded or the response in
 the form of downlink is required. It also decides on the
 receive slots for the response, i.e. $RX1$ or $RX2$.\\
 
-In the original simulator \cite{simulator} \texttt{Gateway} is also responsible for executing the ADR algorithm. ADR is the algorithm, devised to minmize the energy consumption at nodes, operating mainly by estimating the appropriate TP and SF values for each uplink packet and sending them to the respective node (that sent the packet) via a downlink frame \cite{simulator}. The node that uses these values until a next update from the gateway. In the original simulator these values are calculated based on the SNR values of the received frames. \\
-% [INPUT DETAILS ON ADR and ADR itself maybe] \\
+% In this project, however I am not going to implement any form of ADR and instead apply reinforcement learning tecnhiques to 
+% decide on appropriate \texttt{LoRa Parameters} values for uplink frames.\\
 
-In this project, however I am not going to implement any form of ADR and instead apply reinforcement learning tecnhiques to 
-decide on appropriate \texttt{LoRa Parameters} values for uplink frames.\\
+\section{The problem of scalability}
+
+One of the core problems associated with LoRa is network 
+scalability. As investigated by the authors of
+\cite{collision_conditions}, among other factors that
+affect network scalability is the dynamic LoRa setting
+allocation, i.e. they found that it is possible
+to significantly improve network performance through
+dynamically adjusting communication settings at the
+node (e.g. spreading factor, transmission power, bandwidth), compared to using predefined static values.\\
+
+For this purposes LoRaWAN specification 
+\cite{lorawan_spec} defines the Adaptive Data Rate
+(ADR) algorithm designed to optimize data rates, minimise air time and energy usage. The algortithm
+is typically executed both on a network server and at the 
+end-device, i.e. node. 
+The server gathers the connection data from the base stations, i.e. gateways reached by the node (in accordance with the ALOHA protocol, mentioned above, the message 
+sent by the node should hit all gateways
+with the node's reach). Based on the uplink frame Signal-to-Noise Ratio value the algorithm determines the new
+spreading factor and transmission power settings suitable
+for the node in question. In contrast, ADR algorithm running on the node is less flexible, it can only decrease its
+data rate and cannot change its transmission power.
+This leads to a phenomenon referred to as the "low 
+transmission power trap" \cite{low_power_trap} whereby a
+node is left cut off from the gateway, when higher \texttt{sf} and \texttt{tp} settings are required .\\
+
+Thus a more node centric approach may be required 
+where a node can have more power over the LoRa parameters
+available to it, thus controling the communication settings.
+The algorithm can still be physically executed on the
+network server. The effective allocation of communication
+setting parameters will be the main focus of this project. 
+I will train a reinforcement learning model and apply it
+in the context of the given simulator. In the end I will
+compare its performance against the static setting allocation and the ADR algorithm.
+
+% in ADR a node cannot change its transmission power
+% parameter 
+
+% A common issue associated with the ADR algorithm executed at the gateway is the 
 
 % Due to the SF orthogonality assumption, the gateway can simultaneously receive up to 8 different packets on separate channels. [FALSE???]
 
 \chapter{Reinforcement Learning} 
+
+In this chapter I will introduce the reader to the fundamentals of Reinforcement Learning necessary to move 
+forward. I will start with the introduction to Markov Chains
+and build upon that explaining the mathematical intuition
+behind Markov Processes evaluation. The intuition will prevail 
+into the later sections about the more advanced developments in 
+the field of deep reinforcement learning.\\
 
 Reinforcement Learning has recently seen a rise in popularity after a few successful case studies such as the success of DeepMind in 2016 after AlphaGo beat the Korean 9-dan professional Go player \cite{alpha_go_lee_sedol} and after more recently OpenAI beat a team of professionals in a Dota 2 match \cite{dota}.\\
 
 Reinforcement Learning (RL) typically focuses on the problems of agents within some environment. The agents try to learn optimal behaviour within the environment, with the goal of maximizing some sort of reward (e.g. AlphaGo playing Go, trying to maximize it's win probability \cite{alpha_go_lee_sedol}). The policy of that agent, i.e. how it decides to act under certain conditions (e.g. coordinates on a map, temperature, board game position) is the component, not specified by the programmer but instead learnt by the agent via trial-and-error interactions with the environment over the learning period \cite{sutton_barto}. Thus RL often reduces to a problem of learning the optimal policy in the context of a particular application.\\
 
 This closed loop can be demonstrated as in the figure \ref{fig:closed_loop} below, where an agent subject to state $S_{t}$
-and reward $R_{t}$ takes an action $A_{t}$ which leads to a new
-state $S_{t+1}$ and a new reward $R_{t+1}$:
+and reward $R_{t}$ takes an action $A_{t}$ which 
+in relation to the environment puts the agent
+into a new state $S_{t+1}$ and respectively obtains new reward $R_{t+1}$:
 
 \begin{figure}[h!]
   \centering
@@ -643,7 +695,7 @@ worse than SARSA based on the overall reward score as can be seen from figure \r
 As Sutton and Barto recognize \cite{sutton_barto} this 
 arises precisely from the on and off policy nature of 
 these 2 approaches. Q-learning still acts based on its
-\textbf{behaviour policy} unrelated to the optimal target policy it optimizes and thus due to it being $\epsilon$-greedy when walking near the cliff it occasionally "falls off" and this affects the overall
+\textbf{behaviour policy} unrelated to the optimal target policy it optimizes and produces. Thus due to it being $\epsilon$-greedy when walking near the cliff it occasionally "falls off" and this affects the overall
 reward score.  At the same time because SARSA is 
 optimizing the same policy it follows it learns a safer
 path further from the edge because it takes the \textbf{next} action selection into account. 
@@ -786,7 +838,7 @@ submitted transitions are assigned the current maximum weight to ensure that the
 \section{Target Network }
 
 Another problem introduced by generalisation is when adjacent states are trained on multiple times
-it results in a rocketing effect \cite{lecture_dqn}.  
+it results in a rocketing effect \cite{lecture_dqn} that can be seen in figure \ref{fig:generalisation_curse}.  
 
 \begin{figure}[H]
 \centering
@@ -863,28 +915,49 @@ S \longleftarrow S^{'}\;\\
 
 \chapter{Learning Model}
 
-
+In this chapter I will describe my learning model
+for the problem of resource optimization for LoRaWAN devices with
+NOMA. It will tie together the background material from chapters
+2 and 3 and glance over the related work in the field as well.
+% In this chapter I will describe approach to the  
+% reinforcement learning problem at hand. This will
+% include the learning agent, rewards function,
+% action and state space.
 
 \section{Related work in the field}
 
-There have a been a few attempts at implementing resource optimization with Reinforcement Learning. For example the
+There have a been a few attempts at implementing resource optimization with Reinforcement Learning. 
+
+For example the
 authors of this paper \cite{rl_lora_original} applied 
 Deep Q learning to resource optimization for LoRaWAN
 networks and produced promising results for energy
 consumption but not for throughput. Their approach
 however is the most relatable in terms of the learning
-model used. In this paper \cite{rl_lora_sarsa_dqn} both
+model used. 
+
+In this paper \cite{rl_lora_sarsa_dqn} both
 SARSA and DQN approaches are applied, former used for
 light traffic and the latter for heavy traffic, due state
 space growing based on the current number of users. On
 top of that the actions in that paper mean swapping users
-in and out of different channels. The researchers here 
+in and out of different channels. 
+
+The researchers here 
 \cite{rl_distributed_mab} took distributed learning
 approach with the naive tabular multi-agent multi-arm
 bandit (MAB) implementation.
 
-There have apparently been no such studies for NOMA LoRa 
-networks and this will be my contribution. 
+In most of the surveyed work the details and characteristics
+of the implemented models such as the choice of action and
+state space or the choice of the learning algorithm 
+(i.e. Q-learning vs. SARSA) are either absent or vague and 
+unjustified. In this project I am attempting at a more
+detailed and clear study of different approaches to the 
+problem with the learning model introduced in paper \cite{rl_lora_original} taken as the partial basis. 
+Furthermore the implementation of NOMA at the gateway
+rather than at the node is a realitively new concept
+that will be adopted and studied here as well.
 
 \section{Learning Model}
 
@@ -895,8 +968,7 @@ agent on the node side, unlike for example in this paper
 \cite{rl_lora_sarsa_dqn} where the agent is abstracted over the
 nodes. In my implementation however each of the nodes
 contributes to the learning process and takes a portion of the
-agency role upon itself. It contributes to the learning process
-both tabular and deep through the data it individually collects.
+agency role upon itself. It contributes to optimizing the Q function both tabular and deep through the data it individually collects.
 
 \section{Distributed Learning and Clustering}
 The ideal situation would of course be having one learning agent
@@ -907,8 +979,11 @@ distance from the node and so clusters are of a circular
 form. 
 % [CITATION or EXPERIMENT] 
 I wanted to try and make clusters even more local based and divided the simulation cell into 
-square sectors of adjustable size as shown in the figure 
-\ref{fig:my_sectors} below.
+square sectors of adjustable size as shown in the figure \ref{fig:my_sectors} below. On top of that in a multiple
+gateway setting the original division is harder to 
+adhere to since its gateway centric, while mine centers
+around the location of nodes realtive to each other in
+essence. 
 
 \begin{figure}[H]
 \centering
@@ -967,9 +1042,9 @@ deep learning agents over 3 node clusters.\\
 
 Follwing the introduction of NOMA it makes sense to base
 the reward function to a respective metric such as SINR.
-Such metric is throughput $T$, which can be calculated as follows: 
+Such metric is throughput, which can be calculated as follows: 
 \begin{align}
-T = log_2(\text{SINR}+ 1)
+throughput = log_2(\text{SINR}+ 1)
 \end{align}
 
 Furthermore in order to minimize energy consumed at nodes I 
@@ -978,6 +1053,10 @@ value. So as a result we get:
 \begin{align}
     reward = \frac{T}{E_{bit}}
 \end{align}
+
+This is what the learning algorithm woill try to maximize, i.e. in this way it will maximize the 
+throughput and energy consumption for each individual
+node involved. 
 
 \subsubsection{Reward collection}
 
@@ -1003,7 +1082,8 @@ windows for the downlink packets are opened.
 Following the example of this paper \cite{rl_lora_original} the action space consists naturally of the \texttt{LoRaPacket} 
 parameters available to Node, i.e. spreading factor,
 transmission power and channel (frequency): 
-\texttt{[sf, tp, channel]}. \\
+\texttt{[sf, tp, channel]}. These are the main
+parametera available to Node for changing. \\
 
 A further suggestion would be to explore other parameters from \texttt{LoRaParameters}.
 
@@ -1017,21 +1097,21 @@ strength (RSS), signal-to-interference-plus-noise ratio (SINR),
 energy consumed per bit, packet ID and number of packets:\\
 \texttt{[sf, tp, channel, rss, sinr, energy, packet\_id, num\_packet]}
 
-\subsection{Slow Action Traversal}
-During hypertuning I experimented with different state spaces
-and noticed that between many there's no difference in 
-performance, the model seems to output similar results
-despite the state space. One of the possible causes for this
-is the extensibility of the action space. \\
+% \subsection{Slow Action Traversal}
+% During hypertuning I experimented with different state spaces
+% and noticed that between many there's no difference in 
+% performance, the model seems to output similar results
+% despite the state space. One of the possible causes for this
+% is the extensibility of the action space. \\
 
-Unlike in classical RL problems where an agent's action causes
-a minor transition in the state space, here for example if 
-the state space is \texttt{[sf, channel, tp]} then the agent can just travel from an arbitrary to state to any other point
-in the state space, because that's how the action space 
-traversal is defined. \\
+% Unlike in classical RL problems where an agent's action causes
+% a minor transition in the state space, here for example if 
+% the state space is \texttt{[sf, channel, tp]} then the agent can just travel from an arbitrary to state to any other point
+% in the state space, because that's how the action space 
+% traversal is defined. \\
 
-So I decided to introduce a slower version of action space,
-where in each dimension only an incremental update is possible, e.g. from \texttt{sf}7 an agent can only go to \texttt{sf}8 or \texttt{sf}9.
+% So I decided to introduce a slower version of action space,
+% where in each dimension only an incremental update is possible, e.g. from \texttt{sf}7 an agent can only go to \texttt{sf}8 or \texttt{sf}9.
 
 % Despite first prototypes starting with 
 
@@ -1039,7 +1119,11 @@ where in each dimension only an incremental update is possible, e.g. from \textt
 % \section{LoRa Action}
 % \section{LoRa Reward}
 
-\chapter{Modifications to code}
+\chapter{Implementation}
+
+In this chapter I will assess the original simulator framework \cite{simulator_github} and describe my developments and contributions to the codebase. 
+I will cover not only the learning bit, but also the 
+additional components I developed such as \texttt{NOMA} and the \texttt{SINR Model}. 
 
 \section{SimPy simulation framework}
 
@@ -1048,7 +1132,12 @@ As mentioned above the simulator code was described in this
 paper \cite{simulator}. The authors presented some plots against
 which I could compare. This is the most obvious immediate 
 comparison one can make to legitimize this framework and it's
-authors claims. Here are the plots from the original paper:
+authors claims. 
+
+Here are the plots from the original paper demonstrating 
+energy usage and data extraction rate measurements of the
+network for different payload sizes and channel variance 
+measured in dB:
 
 \begin{figure}[h]
 \centering
@@ -1238,39 +1327,97 @@ transitions that were just trained on are updated regularly.
 
 \subsection{Batch normalization}
 
-\chapter{Hypertuning and Performance}
+\chapter{Performance and Hypertuning}
 % Comparison to other models and implementations
+In this chapter I will discuss the performance of 
+the implemented models and look at various metrics
+associated with them. I will also go through the
+hypertuning process and thus the reasoning behind the
+choice of the optimal learning model algorithm and its
+respective hyperparameteres.
+It will also explain how model performance led me to 
+investigate the areas that I did. Ultimately I will look at
+what worked and what didn't and attempt at explaining why.
+% the choice of areas to focus on and investigate. 
+
+% I will also reveal my thought process throughout the 
+% project, the pivot turns I took and how seeing how 
+% the model performed at first encouraged me to explore
+% particular aspects of it such as state space and action 
+%  space traversal. 
+
+\section{Metrics guide}
+In the following sections various metrics will be used.
+The one for evaluating the model learning will 
+typically consist of thee subplots of respectively:
+rewards plots, throughput plots and the energy usage plots. It is helpful to see all three and peek behind
+the basic rewards values to see which models have 
+better throughput or energy usage as the rewards curves
+don't always reflect these details, especially if the 
+differences are relatively minor. \\
+
+In regards to the network performance I will also 
+plot the Data Extraction Rate along with Energy Efficiency and count plots (e.g. transmission counts).
+I am borrowing these metrics from paper \cite{rl_lora_original} as it uses the same simulator 
+framework and closely resembles my learning model.
+
+\section{Introducing NOMA}
+
+here you can see the effect of introducing NOMA
+into the system. Generally it seems to improve
+energy usage and greatly increase energy efficiency.
+
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/NOMA/noma_effect_small.png}
+  \caption{Effect of introducing NOMA}
+  \label{fig:tabular_q_decays}
+\end{figure}
 
 \section{GLIE and Robbins-Monroe convergence}
-Satisfying the convergence properties for both $\epsilon$
-and $\alpha$ is crucial for learning as can be seen from
-these plots. \\
 
+In this section I will demonstrate how crucial for 
+convergence and learning overall is satifying 
+the "Greedy in the Limit with Infinite Exploration"
+condition, i.e. $\epsilon$ decay along with the Robbins-Monroe sequence of learning rates $\alpha$.
+In the following 4 sets of plots (figures
+\ref{fig:tabular_q_decays},
+\ref{fig:tabular_sarsa_decays}, 
+\ref{fig:deep_q_decays}, \ref{fig:deep_sarsa_decays})
+you can see the 
+performance of 4 different learning models: tabular Q-learning, tabular SARSA, deep Q-learning and deep SARSA. For each of those 4 flavours are implemented:
+«default», i.e. $epsilon$ and $\alpha$ are constant
+throughout the simulation time, «epsilon» and «alpha»,
+i.e. respectively $\epsilon$ only and $\alpha$ only 
+decays are implemented and finally «epsilon + alpha»
+where both decay throughout the simulation run.
+% Each set contains the rewards, throughnputs and energy
+% values collected by all nodes throughout the 
+% simulation time.
 
-Here's a plot of effects of alpha and epsilon decay on tabular Q-learning. As we can see from the rewards plot introducing alpha decay with epsilon decay gives us the best result.
 \begin{figure}[H]
 \centering
 \hspace*{-1.1cm}  
 \includegraphics[scale=0.40]{plots/decays/tabular_q_learning_decay_SMALL.png}
-  \caption{Q learning with alpha and epsilon decay}
+  \caption{Tabular Q learning convergence}
+  \label{fig:tabular_q_decays}
 \end{figure}
 
-Here's a plot of effects of alpha and epsilon decay on tabular SARSA. As we can see from the rewards plot introducing alpha decay alone gives us the best result. This makes sense since learning rate adjustment is crucial for SARSA as 
 \begin{figure}[H]
 \centering
 \hspace*{-3.3cm}  
 \includegraphics[scale=0.40]{plots/decays/decay_tabular_sarsa_SMALL.png}
-  \caption{SARSA with alpha and epsilon decay}
+  \caption{Tabular SARSA convergence}
+  \label{fig:tabular_sarsa_decays}
 \end{figure}
-
-As can be seen for both deep q learning and sarsa benefit from
-both epsilon and alpha decay. 
 
 \begin{figure}[H]
 \centering
 \hspace*{-1.1cm}  
 \includegraphics[scale=0.40]{plots/decays/deep_q_decay_SMALL.png}
   \caption{Deep Q learning with alpha and epsilon decay}
+  \label{fig:deep_q_decays}
 \end{figure}
 
 \begin{figure}[H]
@@ -1278,50 +1425,99 @@ both epsilon and alpha decay.
 \hspace*{-1.1cm}  
 \includegraphics[scale=0.40]{plots/decays/deep_sarsa_decay_SMALL.png}
   \caption{Deep SARSA with alpha and epsilon decay}
+  \label{fig:deep_sarsa_decays}
 \end{figure}
 
-Here you can see all different flavours 
-compared against each other. Each one 
-has epslion and alpha decay enabled in the 
-same way. We can see that as expected deep models outperform their tabular counterparts and Q-learning in particular outperforms SARSA.
+Interestingly enough looking at tabular models plots
+introduction of $\epsilon$ and $\alpha$ decays 
+individually inhibits model performance but introducing
+them together clearly improves learning and allows for 
+faster convergence than the «default» implementation.
+Despite that the «default» flabour still achieves 
+better values overall looking at the throughput and 
+energy plots. \\
+
+The picture is quite different for deep models. Here
+the addition of each optimization alone does improve
+the «default» performance and both $\epsilon$ and
+$\alpha$ decays together give the best result. Also 
+take a note that the naive tabular implementations 
+were run for much longer periods of time 50 days, and
+took longer to coonverge that deep models, which were run for only 20 days of simulation time. 
+
+In the following plot figure \ref{fig:all_decays} all mentioned models are ran 
+alongside each other. Each one has both epsilon and alpha
+decay enabled. As expected deep models outperform their
+naive counterparts and in particular Q-learning 
+outperforms SARSA.
 
 \begin{figure}[H]
 \centering
 \hspace*{-3.3cm}  
 \includegraphics[scale=0.40]{plots/decays/all_decay_SMALL.png}
-  \caption{All implementations}
+  \caption{All models}
+  \label{fig:all_decays}
 \end{figure}
 
-\subsection{Decay rate}
+From here on I will not be plotting tabular 
+implementations, they are here for demonstrative 
+purposes. So if I refer to Q-learning or SARSA
+in the forthcoming plots, by default I mean deep
+models. 
 
-For all of the above a decay rate of 1 was used. What
-that means is that for both epsilon and alpha the decay 
-update happened every n steps, where n is the size of 
-a cluster, that the agent is assigned to. This makes 
-sense since ideally we would want a situation where
-all nodes got involved with $\epsilon$ and $\alpha$
-once before they got updated. Here are plots for both where i tried different decay rates. As it turns out for alpha in particular a rate of 0.5 produces better results than the default 
-one.
+\subsection{Choosing the decay rate}
+
+For the plots above by default I used a decay rate of 
+1. What that means is that given a cluster of $n$ nodes,
+the learning agent would update the respective value 
+(epsilon or alpha) every $n$ steps. This makes intuitive
+sense, since ideally one would want every node to 
+«access» both epsilon and alpha at least once. 
+Originally I implemented fast versions of these decays
+whereby each call to the respective method inside the 
+\texttt{LearningAgent} class would update the value, 
+i.e. \texttt{choose\_next\_action()} for epsilon and 
+\texttt{train\_q\_network()} for alpha. These performed
+worse than the aformentioned «default». As one would 
+expect they converged too fast thus reaching suboptimal 
+values.\\
+
+In the following plots I attempted at tuning the decay
+rates for values other than one. All plots are for the Deep Q-learning implementation (SARSA performed similarly in regards to 
+alpha and epsilon decay tuning) Epsilon decay didn't show any improvement from the default value but alpha did perform best with alpha decay rate of 0.5.
+Here are plots for both where i tried different decay rates. As it turns out for alpha in particular a rate of 0.5 produces better results than the default 
+one. The reason that might be is...\\
+
+Maybe need to rerun the following plots with alpha decay of 0.5 
+as the actual optimal value
 
 \begin{figure}[H]
 \centering
-\hspace*{-3.3cm}  
+\hspace*{-1.1cm}  
 \includegraphics[scale=0.40]{plots/decays/epsilon_deep_q_SMALL.png}
   \caption{Epsilon decay rate}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\hspace*{-3.3cm}  
+\hspace*{-1.1cm}  
 \includegraphics[scale=0.40]{plots/decays/alpha_deep_q_SMALL.png}
   \caption{Alpha decay rate}
 \end{figure}
 
 \section{Gamma}
-here's a straightforward progression for gamma 
-(discount factor) values. As we can see the model
-learns best when we put more weight on future
-decisions.
+If you recollect gamma is the discount factor in the 
+context of a Markov Decision Process. It is the weight 
+that one puts on the future rewards when estimating total
+return from the current Markov state. In the following 
+plots I tune gamma for deep Q-learning again) for values
+between 0 and 1 ($\gamma \in [0,1]$). As the curves demonstrate heavy reliance on the future rewards produces better results. At least this is the case for Q-learning 
+for default statre space for action traversal. 
+
+% Q-learning is off policy 
+% SARSA is on policy
+
+% The reason that might be is...
 
 \begin{figure}[H]
 \centering
@@ -1330,45 +1526,143 @@ decisions.
   \caption{Tuning gamma}
 \end{figure}
 
+The plots look different for other state space configurations.
+Consider...
 
 \section{State Space}
-From the plots it is apparent that including 
-\texttt{energy} dimension into the state space results in worse learning but that might also be due to the implementation in the simulation of information 
-gathering.
 
-Here is the comparison for fast action traversal. As we can see best options would
-be \texttt{[tp]} and \texttt{[tp, sf, channel, sinr]} as they
-produce similar rewards with former having 
-better throughput while the latter has more optimal energy usage. 
+In my implementation I made it possible to change the 
+state space quite easily so that enables us to see
+how changing it will affect the performance of different 
+models. First if we look at how Deep Q-learning performs
+with different singular state spaces in figure \ref{fig:singular_state_deep_q} we will see that 2 paraemters
+seem to do much better than the rest: \texttt{energy} and
+\texttt{sf}. The reason for that might be is...\\
+
+NEED TO RERUN FOR SARSA SECOND ROW TITLE
+IS WRONG
+
+% From the plots it is apparent that including 
+% \texttt{energy} dimension into the state space results in worse learning but that might also be due to the implementation in the simulation of information 
+% gathering.
+
+% Here is the comparison for fast action traversal. As we can see best options would
+% be \texttt{[tp]} and \texttt{[tp, sf, channel, sinr]} as they
+% produce similar rewards with former having 
+% better throughput while the latter has more optimal energy usage. 
+
+% \begin{figure}[H]
+% \centering
+% \hspace*{-3.3cm}  
+% \includegraphics[scale=0.40]{plots/state_space/state_space_hypertuning_deep_q_SMALL.png}
+%   \caption{Tuning state space}
+% \end{figure}
+
+% Here's one for slow action. As we can see \texttt{[tp, sf]} and
+% \texttt{[tp, sf, channel]} are winning in this case.
+
+% \begin{figure}[H]
+% \centering
+% \hspace*{-3.3cm}  
+% \includegraphics[scale=0.40]{plots/state_space/state_space_slow_action_hypertuning_deep_q_SMALL.png}
+%   \caption{Tuning state space}
+%   \label{fig:singular_state_deep_q}
+% \end{figure}
+
+% Here I also attempted tuning for different singular state spaces and
+% interestingly enough the energy one performs better than the others.
 
 \begin{figure}[H]
 \centering
 \hspace*{-3.3cm}  
-\includegraphics[scale=0.40]{plots/state_space/state_space_hypertuning_deep_q_SMALL.png}
-  \caption{Tuning state space}
+\includegraphics[scale=0.40]{plots/state_space/singular_state_space_small.png}\\
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/state_space/singular_state_space_sarsa_small.png}
+  \caption{Tuning singular state space for Deep Q-learning and SARSA}
 \end{figure}
 
-Here's one for slow action. As we can see \texttt{[tp, sf]} and
-\texttt{[tp, sf, channel]} are winning in this case.
+\subsection{Relationship between action and state spaces}
+After running with action space \texttt{[tp, sf, channel]}
+and having them in the state space or not I noticed
+that it doesn't seem to make any real difference to 
+how a model performs. This lead me to the 
+conclusion that such a powerful action space
+overshadows the respective dimension parameters in
+the state space. \\
+
+In the following plot 3 variations of state space
+are ran against each other: «default», i.e. the state space implemented in paper \cite{rl_lora_original}
+\texttt{[tp, sf, channel, energy, sinr, rss, packet\_id, 
+num\_pkt]}, «no A dimensions» ,i.e. \texttt{[energy, sinr, rss, packet\_id, num\_pkt]}, and «no packet info» ,i.e. \texttt{[energy, sinr, rss]}.
+Interestingly enough removing action space dimensions
+from the state space does inhibit learning but further
+removing packet information seems to perform just
+as good as the original. On top of that it needs to be
+noted that all the singular state space runs from the 
+previous plot perform better than any combination 
+presented here. This leads me to the conclusion 
+that a simpler state space leading to better learning 
+here might be due to simplicity of the underlying
+problem and causes me to question the need for an
+extensive state space used by the researchers in the
+aformentioned paper. All the original parameters do carry 
+important information regarding the state of the system in theory, but in practise given the current simulator complexity 
+(or simplicity) this seems to be unnecessary and not only take up
+more memory space but also lead to suboptimal model performance.
 
 \begin{figure}[H]
 \centering
 \hspace*{-3.3cm}  
-\includegraphics[scale=0.40]{plots/state_space/state_space_slow_action_hypertuning_deep_q_SMALL.png}
+\includegraphics[scale=0.40]{plots/state_space/state_space_SMALL.png}
   \caption{Tuning state space}
 \end{figure}
 
-\section{Reward Function}
+% \section{Reward Function}
 
-I have tried putting different emphasis on either 
-throughput or energy via altering the basic reward formula of $\frac{throughput}{energy}$. \\
+% I have tried putting different emphasis on either 
+% throughput or energy via altering the basic reward formula of $\frac{throughput}{energy}$. \\
 
-I have tried raising either numerator or denominator 
-to powers of 2 and 3 to see if this will cause learning
-to favour one more. The plots seem to suggest no apparent
-effect (that is prior to convergence). 
+% I have tried raising either numerator or denominator 
+% to powers of 2 and 3 to see if this will cause learning
+% to favour one more. The plots seem to suggest no apparent
+% effect (that is prior to convergence). 
 
 \section{Slow Action Traversal}
+
+Unlike in classical RL problems where an agent's action causes
+a minor transition in the state space 
+(e.g. a robot walking a maze), here for example if 
+the state space is \texttt{[sf, channel, tp]} then 
+projecting this onto our euclidian space it is as if the 
+robot could teleport anywhere in the environment space. 
+This could be one of the reasons for the plots in the previous 
+subsection above.\\
+
+This would make optimizations such as Replay Buffer or 
+Double Deep Network for this setting less significant since one
+of the key properties of the problem they rely on is that
+consecutive transitions imply consecutive states. But here
+consecutive transitions obviously don't imply that, since
+action space traversal is so powerful. That also explains
+that changing state space has little to no effect on the model
+performance with the simplest possible state space performing 
+best. \\
+
+So to see if that were the case in practice I decided to
+manually slow down the action traversal, introducing the 
+so-called "Slow Action" traversal where within each dimension 
+of the action space only incremental updates are possible e.g.
+given a set of spreading factors
+
+So I decided to introduce a slower version of action space,
+where in each dimension only an incremental update is possible, e.g. for a range of possible transmission powers 
+\texttt{[2, 5, 8, 11, 14]} from \texttt{tp}=8 an agent can
+only go to values 5, 8 or 11.
+
+In the plot below I ran alongside each other all possible 
+variations of slow action traversal, («slow sf» for example
+means that the agent can travers spreading factors only incrementally and in regards to transmission powers and channel
+traversal is as normal, i.e. fast)
 
 As described above slow action traversal is possible in 
 this scenario. Here are the plots comparing various
@@ -1381,22 +1675,49 @@ slow action traversal combinations.
   \caption{Slow action traversal}
 \end{figure}
 
- No apparent
-improvement can be seen from the default «fast»
-action traversal, but we do notice that slowly 
-traversing \texttt{tp} seems to improve throughput.
-At the same time having only \texttt{[tp]} as a state space performed best for fast action traversal, so if we combine them we get: 
+Here I used a standard state space of \texttt{[tp, sf, channel]}. No apparent improvement can be seen from the default «fast»
+action traversal, other than a little notice that slowly 
+traversing \texttt{tp} seems to improve throughput. As can be observed all combinations where spreading factors were
+traversed slowly performed significantly 
+worse in term of energy usage.
+
+Here are the respective plots for the other state space variations. The best performing so far is...\\
+
+INPUT PLOTS\\
+
+I also tried running the respective variations of slow action traversal for all 
+singular state spaces possible. The best variation performing optimally in all of those
+was slow \texttt{tp} with slow \texttt{channel}. Here's how these state spaces
+perform against each other for that variation of slow action traversal. 
+
+% The plots are store here C:\Users\Халметов Юрий\Desktop\Year 4 Masters Project\Plot Diary\28.05.2021\16 
+% Maybe include in appendix because to many plots for here
 
 \begin{figure}[H]
 \centering
 \hspace*{-3.3cm}  
-\includegraphics[scale=0.40]{plots/slow_action/slow_action__state_space_tp_hypertuning_deep_q_SMALL.png}
-  \caption{Slow action traversal for \texttt{tp}}
+\includegraphics[scale=0.40]{plots/slow_action/deep_q_slow_action_singular_state_space_small.png}\\
+\hspace*{-3.3cm} 
+\includegraphics[scale=0.40]{plots/slow_action/slow_action_singular_deep_sarsa.png}
+  \caption{Slow tp and channel traversal for singular spaces for Deep Q and SARSA}
 \end{figure}
 
-As we can see given a state space \texttt{[tp]} 
-having slow \texttt{tp} action traversal improves
-model performance.
+As one can see the state spaces \texttt{[sf]}, \texttt{[thoughput]} 
+are performing best with obvious optimal energy and reward curves.
+
+
+% At the same time having only \texttt{[tp]} as a state space performed best for fast action traversal, so if we combine them we get: 
+
+% \begin{figure}[H]
+% \centering
+% \hspace*{-3.3cm}  
+% \includegraphics[scale=0.40]{plots/slow_action/slow_action__state_space_tp_hypertuning_deep_q_SMALL.png}
+%   \caption{Slow action traversal for \texttt{tp}}
+% \end{figure}
+
+% As we can see given a state space \texttt{[tp]} 
+% having slow \texttt{tp} action traversal improves
+% model performance.
 
 % \subsection{Rates of update}
 % These can be updated at each step, i.e. every time a node
@@ -1412,28 +1733,84 @@ model performance.
 % Slowing down alpha decay improves both energy and 
 % throughput and results in a reward jump as well. 
 
+Given the above it seems like 
+slow tp and slow channel traversal together produce optimal performance. 
+Further detail that might impact the 
+choice for the final state space would
+be trying to identify which parameters
+are the most relevant for the learning
+process. The most immediate candidates
+are, of course, energy, throughput
+and sinr as they all affect the 
+immediate rewards the agent obtaines.
+in the following plots various 
+combinations of these are compared
+against the default, i.e. Deep Q-learning with normal state space
+and action traversal.
 
-\section{Tabular vs. Deep}
-\section{SARSA vs Q-learning}
-\section{Neural Network Depth}
-\section{Prioritised Experience Replay Buffer}
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/slow_action/energy_throughput.png}
+  \caption{Deep Q slow tp + channel for combinations of sinr, energy and throughput}
+\end{figure}
 
-Here's the plot for fast decay for epsilon and alpha along with slow action comparison.
+As expected the state combination \texttt{[throughput, energy]} performs
+best.
+
+But if we compare against the respective
+state space for fast action traversal we 
+see that fast energy still outperforms 
+all other variants. 
+
+\begin{figure}[H]
+\centering
+\hspace*{-1.3cm}  
+\includegraphics[scale=0.40]{plots/slow_action/throughput_energy_small.png}
+  \caption{Deep Q slow tp + channel for combinations of sinr, energy and throughput}
+\end{figure}
+
+\section{Generalisation mitigation optimizations}
+\subsection{Prioritised Experience Replay Buffer}
+
+Here we will see the effect of tuning Deep Q-learning with 
+Prioritised Experience Replay Buffer implemented as described
+in the background section. As already mentioned due to 
+the "fast" nature of the action traversal it might render 
+implementing Replay Buffer unnecessary. Therefore in the 
+following plots I also compare default action traversal against
+slow action traversal implemented alongside experience replay 
+buffer. 
+
+Interestingly enough my prediction that experience replay buffer
+will benefit from slow action traversal is legitimate
+only in the case of slow epsilon and alpha decay as can be seen
+from figure \ref{fig:buffer_fast_decay}. In the case of alpha
+and epsilon decay rates of 1 in figure \ref{fig:buffer_slow_decay}, not only introducing replay buffer
+leads to worse rewards, introducing slow action traversal on top of that doesn't improve the curve at all. 
+
+This leads me to confirm my suspicion that experience replay
+buffer in this problem setting is a weak improvement to the 
+original model, and only boosts performance if the model 
+undergoes superfast convergence to suboptimal values as in the
+case of fast alpha and epsilon decay.
 
 \begin{figure}[H]
 \centering
 \hspace*{-3.3cm}  
 \includegraphics[scale=0.40]{plots/replay_buffer/replay_buffer_with_slow_action_traversal_fast_decay_deep_q_SMALL.png}
   \caption{buffer with fast decay}
+  \label{fig:buffer_fast_decay}
 \end{figure}
 
-Here's the plot for slow decay for epsilon and alpha along with slow action comparison.
+% Here's the plot for slow decay for epsilon and alpha along with slow action comparison.
 
 \begin{figure}[H]
 \centering
 \hspace*{-3.3cm}  
 \includegraphics[scale=0.40]{plots/replay_buffer/replay_buffer_with_slow_action_traversal_deep_q_SMALL.png}
   \caption{buffer with slow decay}
+  \label{fig:buffer_slow_decay}
 \end{figure}
 
 As we can see with fast decay replay buffer does benefit Q-learning substantially especially with the addition of slow action traversal, but if we slow down the decay rate for epsilon and alpha it actually worsens 
@@ -1441,11 +1818,11 @@ the default Deep Q-learning performance which still
 performs better than the most optimal one 
 if fast decay rates.
 
-\subsection{Buffer size}
-Here I conducted hypertuning on the buffer size.
+\subsubsection{Buffer size}
+Here you can see the tuning of the buffer size.
 For each run the buffer size is scaled by the 
 respective number based on the cluster size, i.e.
-if the agent is assigned to 8 nodes, with scaling
+if the agent is assigned to 8 nodes, with a scaling
 factor 3, buffer size is 24. 
 
 \begin{figure}[H]
@@ -1455,11 +1832,15 @@ factor 3, buffer size is 24.
   \caption{Scaling replay buffer size}
 \end{figure}
 
-\section{Target Network and Double Deep learning}
+\subsection{Target Network and Double Deep learning}
 
-Here's a plot trying out differernt update rates
-for the target network as can be seen 2 is the optimal setting. That means target network is 
-updated every \texttt{cluster\_size * 2} steps.
+\subsubsection{Target Network with slow action traversal}
+
+One of the parameters that can be tuned here is the rate at which
+we update the target network. The following figure displays
+different update rates for the target network, i.e. a scale of 3
+means that given a cluster of n nodes an agent updates its
+target network every 3n steps. As can be seen 2 is the optimal update rate for that matter.
 
 \begin{figure}[H]
 \centering
@@ -1468,14 +1849,15 @@ updated every \texttt{cluster\_size * 2} steps.
   \caption{Scaling target network update rate}
 \end{figure}
 
-As can be seen based on the rewards and energy plots scale 2 is preferred.
+\subsection{Comparison against default}
 
-\section{Comparison against default}
-
-As we can see adding double deep learning along with
-replay buffer does not benefit the learning and default
-Q-learning still performs better (that is with decay
-rate of one).
+Despite my yearly prediction that Replay Buffer and Target 
+Network are unlikely to benefit the Q-learning algorithm here
+I still tuned each one them to see how they will perform 
+in the end individually and combined. As predicted
+neither of them adds value to the learning and furthermore 
+combining them in fact performs worst. The best default
+Q-learning implementation so far outperforms these modifications.
 
 \begin{figure}[H]
 \centering
@@ -1488,7 +1870,132 @@ rate of one).
 As the plots show reducing sector size improves energy
 usage and produces better reward curve. This makes sense,
 since naturally each learning agent covers a smaller 
-more specialized area of less nodes.
+more specialized area of less nodes.\\
+
+For single gateway implementation when running a sector size of a 1000 i.e. one learning agent for the whole area the performance is BETTER as sector size of 500 and seems optimal. This might be due to the single gateway implementation nature of the simulation. Thats why I am attempting at the multiple  gateway implementation. The performance should be different there.\\
+
+sector size of 1000.
+
+\subsection{Multiple gateways}
+
+For the multiple gateways implementation the plots tuning
+the sector size look different with sector size of 500
+being optimal which could be the average coverage of the 
+gateways in questions. For all nodes the reach was set to around 700 with 5 gateways in the cell. This further 
+confirms the idea that one agent per gateway may be 
+the way to go. So optimally the gateway would record
+which nodes it is paired up with by LNS most
+and send the action information to that node from its
+pre-trained agent. For these runs decay rates of 1 were used
+meaning the epsilon and alpha values were amended very little as the number of nodes was much greater now on average.
+
+\begin{figure}[H]
+\centering
+\hspace*{-3.3cm}  
+\includegraphics[scale=0.40]{plots/sector_size/state_space_small.png}
+  \caption{Tuning cluster sector size}
+\end{figure}
+
+\section{Neural Network Depth}
+
+Here I compare different neural networks depth, i.e. number
+of linear layers stacked together. All plots are for 
+deep Q-learning. As it seems Implementing a simple 
+network of 2 layers is sufficient for this kind of problem.
+The labels are wrong for this plot, need to rerun it.
+Labels are 2, 4, 6 ,8 respectively.
+
+\begin{figure}[H]
+\centering
+\hspace*{-1.3cm}  
+\includegraphics[scale=0.40]{plots/depth/depth_deep_q_SMALL.png}
+  \caption{Tuning Neural Network Depth}
+\end{figure}
+
+\section{Neural Network Width}
+
+Changing width doesn't seem to make any significant difference. So I suppose 
+25 per layers should work as well as a 100. 
+
+\begin{figure}[H]
+\centering
+\hspace*{-1.3cm}  
+\includegraphics[scale=0.40]{plots/width/width_small.png}
+  \caption{Tuning Neural Network Width}
+\end{figure}
+
+\section{Comparison with ADR}
+
+Here we will ahve a look at how my model performs
+compared to ADR implementation. Here's a standard 
+set of metrics used to evaluate the learning model.
+
+\begin{figure}[H]
+\centering
+\hspace*{-0.5cm}  
+\includegraphics[scale=0.40]{plots/adr/adr_inspection_normal_small.PNG}
+  \caption{Comparison against ADR and static settings}
+  \label{fig:adr_against_deep}
+\end{figure}
+
+As one can see there is a rapid change of performance for
+ADR at some point during the simulation. This is due to
+the fact that before applying ADR-NET to packets from a
+particular node, the network first collects some data
+to estimate the snr average over. A history of at least 20 successful uplink transmissions is required. This is 
+confirmed by the following plot where markers are used 
+to indicate when a network started applying ADR to each 
+node. For most nodes as one can see this point is around
+the time of the drops in throughput and energy from the plots above, i.e. just after time=2e8
+
+\begin{figure}[H]
+\centering
+\hspace*{-0.5cm}  
+\includegraphics[scale=0.70]{plots/adr/adr_enabling_point.PNG}
+  \caption{ADR enabling point in time}
+\end{figure}
+
+The reason why ADR is showing such rapid drop in energy
+per bit consumed is in the transmission power and 
+spreading factor settings that it signals to the nodes.
+Here are the scatter plots displaying transmission power and spreading factors values at the end of the simulation
+at each node for three different approaches: static, adr 
+and deep reinforcement learning.
+
+\begin{figure}[H]
+\centering
+\hspace*{-1.2cm}  
+\includegraphics[scale=0.35]{plots/adr/adr_inspection_tp_distro.png} \\
+\hspace*{-1.2cm}  
+\includegraphics[scale=0.35]{plots/adr/adr_inspection_sf_distro.png} \\
+  \caption{TP and SF distribution at the end}
+\end{figure}
+
+As for the static (leftmost) the values are the same as 
+they were set at the start of the simulation. For ADR for 
+both TP and SF the algorithm has come to the lowest values, tp=2 and sf=7 respectively. For the deep RL 
+implementation as one would expect tp and sf values
+are the same for nodes within each cluster and since
+the learning algorithm always explores the values present
+are also diverse. \\
+
+Thus by lowering both transmission power and the spreading
+factor ADR reduces both the power values used during 
+uplink transmission and the time on air. Both these factors combined lead to lower usage of energy but at the
+same time by lowering tp, ADR also reduces received
+signal strength values of the outgoing signals thus 
+reducing both SINR and respectively the throughput.\\
+
+The advantage of the deep reinforcement learning model
+in this case is the fact that it better optimizes 
+throughput at the same time reaching minimal energy 
+consumption faster than the ADR algorithm which only 
+starts acting when enough data is gathered. This is 
+reflected in the rewards curve in figure 
+\ref{fig:adr_against_deep}.
+
+
+
 % \chapter{Evaluation}
 % \section{ADR}
 % \section{Comparing against other implementations}
