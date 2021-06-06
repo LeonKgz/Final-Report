@@ -1127,7 +1127,7 @@ additional components I developed such as \texttt{NOMA} and the \texttt{SINR Mod
 
 \section{SimPy simulation framework}
 
-\section{Original framework legitimacy}
+\section{Simulator legitimacy}
 As mentioned above the simulator code was described in this 
 paper \cite{simulator}. The authors presented some plots against
 which I could compare. This is the most obvious immediate 
@@ -1369,8 +1369,8 @@ energy usage and greatly increase energy efficiency.
 
 \begin{figure}[H]
 \centering
-\hspace*{-3.3cm}  
-\includegraphics[scale=0.40]{plots/NOMA/noma_effect_small.png}
+\hspace*{-2.3cm}  
+\includegraphics[scale=0.40]{plots/NOMA/noma_small.png}
   \caption{Effect of introducing NOMA}
   \label{fig:tabular_q_decays}
 \end{figure}
@@ -1933,7 +1933,7 @@ set of metrics used to evaluate the learning model.
 \begin{figure}[H]
 \centering
 \hspace*{-0.5cm}  
-\includegraphics[scale=0.40]{plots/adr/adr_inspection_normal_small.PNG}
+\includegraphics[scale=0.40]{plots/adr/adr_smaller.png}
   \caption{Comparison against ADR and static settings}
   \label{fig:adr_against_deep}
 \end{figure}
@@ -1951,7 +1951,7 @@ the time of the drops in throughput and energy from the plots above, i.e. just a
 \begin{figure}[H]
 \centering
 \hspace*{-0.5cm}  
-\includegraphics[scale=0.70]{plots/adr/adr_enabling_point.PNG}
+\includegraphics[scale=0.50]{plots/adr/adr_enabling_point.PNG}
   \caption{ADR enabling point in time}
 \end{figure}
 
@@ -1992,8 +1992,57 @@ throughput at the same time reaching minimal energy
 consumption faster than the ADR algorithm which only 
 starts acting when enough data is gathered. This is 
 reflected in the rewards curve in figure 
-\ref{fig:adr_against_deep}.
+\ref{fig:adr_against_deep}.\\
 
+If we are to look at another metric from \cite{rl_lora_original} energy efficiency, i.e. average 
+number of packets sent over average energy consumed at
+the nodes (Packet/Joule) we also see that RL outperforms 
+ADR algorithm here by a large margin.
+
+\begin{figure}[H]
+\centering
+\hspace*{-0.5cm}  
+\includegraphics[scale=0.70]{plots/adr/energy_efficiency.PNG}
+  \caption{ADR enabling point in time}
+\end{figure}
+
+
+If we also look at the counts plots which display
+for each action space dimension how many times
+a particular value was visited we can see the following patterns:
+
+\begin{figure}[H]
+\centering
+\hspace*{-1.5cm}  
+\includegraphics[scale=0.40]{plots/adr/adr_inspection_counts.png}
+  \caption{ADR enabling point in time}
+\end{figure}
+
+Obviously deep Q-learning does significantly more
+exploration but still follows a similar pattern for spreading factors having set higher SF values less
+often. \\
+
+In comparison to the enrgy consumption plots 
+from \cite{simulator} here is the equivalent
+for the deep q-learning algorithm:
+
+\newpage
+
+\begin{figure}[H]
+\centering
+\hspace*{-1.5cm}  
+\includegraphics[scale=0.30]{plots/adr/energy_variance_payload.png}
+  \caption{Energy per byte in relation to payload size for different path variance values}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{figures/my_plots_1.PNG}\\
+\hspace*{1.3cm}  
+\includegraphics[scale=0.5]{figures/my_plots_2.PNG}
+  \caption{Plots generated locally}
+  \label{fig:my_sectors}
+\end{figure}
 
 
 % \chapter{Evaluation}
