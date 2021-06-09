@@ -4,16 +4,11 @@ In this chapter I will introduce the reader to the
 basics of LoRa, technologies behind it and also state
 the problem I will be addressing in this project.\\
 
-LoRa stands for \textbf{Lo}ng \textbf{Ra}nge. It is a transmission standard that aims at achieving long range reach with low power consumption, most commonly used by the Internet of Things devices. LoRa technology was first developed by Cycleo from Grenoble, France around 2010 with first prototypes implementing point-to-point communication for walkie-talkie and metering applications \cite{trinity_panel}. Later in 2012 the Cycleo team was aquired by Semtech, and later released the chips for LoRa end devices and gateways \cite{origins}. \\
+LoRa stands for \textbf{Lo}ng \textbf{Ra}nge. It is a transmission standard that aims at achieving long range reach with low power consumption, most commonly used by the Internet of Things devices. LoRa technology was first developed by Cycleo from Grenoble, France around 2010 with first prototypes implementing point-to-point communication for walkie-talkie and metering applications \cite{trinity_panel}. Later in 2012 the Cycleo team was aquired by Semtech, and later released the chips for LoRa end devices and gateways \cite{origins}. 
 
-The open, non-profit organization LoRa Alliance emerged in 2015 \cite{alliance}. It is an association of companies, with Semtech being one of its founding members \cite{alliance_founder}, backing up the LoRaWAN protocol, ensuring its global presence and acceptance. The total number of alliance members surpassed 500 in 2017 \cite{500_members}. Among the notable members are Cisco, Amazon and Alibaba \cite{alliance_members}. 
+\subsection{Chirp Spread Spectrum}
 
-\subsection{LoRa Spread Spectrum (Chirp Spread Spectrum)}
-
-% There are 2 main modulation techniques used for radio broadcasting: AM, i.e amplitude modulation and FM, i.e. frequency modulation whereby either amplitude or frequency are modulated. \\
-
-Chird Spread Spectrum is a modulation scheme, whereby the frequency of a signal is changing linearly in time \cite{ieee_2007} as shown on the figure below \ref{fig:slope}. Such sweeps in frequency are called chirps. CSS is a modulation technique that has been around since 1940s
-\cite{semtech_spec} with applications in naval and air military and also observed in fauna \cite{origins}.\\
+The radio communication technique used by LoRa is called Chirp Spread Spectrum (CSS). It is a modulation scheme, whereby the frequency of a signal is changing linearly in time \cite{ieee_2007} as shown on the figure below \ref{fig:slope}. Such sweeps in frequency are called chirps. CSS is a modulation technique that has been around since 1940s \cite{semtech_spec} with applications in naval and air military and also observed in fauna \cite{origins}.\\
 
 In regards to LoRa CSS signals are bounded by the specified symbol duration and bandwidth. This can be seen in the figure \ref{fig:slope} below. The figure displays 2 signals, i.e. black solid line and blue dotted line. Symbol duration $t_s$ determines the time period over which the frequency sweep occurs and bandwidth defines the sweep range between starting frequency $f_{min}$ and $f_{max}$, i.e. bandwidth = $f_{max} - f_{min}$. Moreover the sweep can start at any frequency $f_0$ (determined by the number of input bits) between $f_{min}$ and $f_{max}$ and this means that a signal can be represented by multiple chirps. So if the sweep reaches $f_{max}$ before $t_s$ it 
 continues from $f_{min}$ until time = $t_s$. Thus if $f_0 = f_{min}$
@@ -41,14 +36,22 @@ According to the Semtech specification \cite{semtech_spec} symbol duration $t_s$
     T_S = \frac{2^{SF}}{B} 
 \end{align}
 
-Where $SF$ stands for spreading factor. Thus looking at figure \ref{fig:slope} SF determines the slope of the chirps, i.e. $\frac{B}{T_s}$ and the number of bits in the encoded information \cite{sf_article}, i.e. $f_0$.\\
+Where $SF$ stands for spreading factor. Thus
+looking at figure \ref{fig:slope} SF determines
+the slope of the chirps, i.e. $\frac{B}{T_s}$. It
+also represents the number of bits used to encode
+the original message \cite{sf_article} which
+incidentally is equal to the starting
+frequency  $f_0$.\\
 
-According to the spec \cite{semtech_spec} LoRa employs 6 spreading factors from 7 to 12. Spreading factors allow different signals to be transmitted over the same channel at the same time. As the specification claims it is possible due to the orthogonality of CSS signals of different spreading factors to each other \cite{semtech_spec}.
+LoRa employs 6 spreading factors from 7 to 12 \cite{semtech_spec}. Spreading factors allow different signals to be transmitted over the same channel at the same time. As the specification claims this is possible due to the orthogonality of CSS signals with different spreading factors to each other \cite{semtech_spec}.
 Despite the claim, spreading factors have been shown to be quasi-orthogonal and the decoding of signal at the receiver can be disrupted under certain conditions for example if the power of the interfering signal is stronger than the one being decoded \cite{imperfect_1}.
 
 \section{LoRaWAN}
 
-On top of the physical layer there needs to be a protocol. And such is the LoRaWAN layer backed by the LoRa Alliance. As the LoRa Alliance itself states on its website \cite{lora_alliance_about_lorawan} LoRaWAN is a network protocol of communication between Internet of Things devices.
+On top of the physical layer there needs to be a protocol. Such is the LoRaWAN layer backed by the LoRa Alliance.\\
+
+The open, non-profit organization LoRa Alliance emerged in 2015 \cite{alliance}. It is an association of companies, with Semtech being one of its founding members \cite{alliance_founder}, backing up the LoRaWAN protocol, ensuring its global presence and acceptance. The total number of alliance members surpassed 500 in 2017 \cite{500_members}. Among the notable members are Cisco, Amazon and Alibaba \cite{alliance_members}.  As the organisation states on its website \cite{lora_alliance_about_lorawan} LoRaWAN is a network protocol of communication between Internet of Things devices.
 
 \subsection{Network Topology}
 
@@ -65,7 +68,8 @@ One gateway can typically cover a range of hunderds of meters to tens of kilomet
 
 \subsection{Multiple Access Control (MAC) scheme}
 
-LoRaWAN implements ALOHA protocol where any device can wake up and transmit a message regardless of time. We are concerned with the messages between a LoRaWAN device and a gateway (base station). Requests from a node to a gateway are called uplink messages, and the responses are called downlink messages.  
+LoRaWAN implements ALOHA protocol where any 
+device can wake up and transmit a message regardless of time. We are concerned with the messages between a LoRaWAN device and a gateway (base station). Requests from a node to a gateway are called uplink messages, and the responses are called downlink messages.  
 The communication scheme has an uplink-centric design and 
 LoRaWAN mandates this design for all devices implementing the protocol \cite{simulator}. In the figure \ref{fig:class A} one can see the typical cycle a node goes through while communicating with a particular gateway: receive windows are allocated periods of time when the node is expecting 
 a downlink response that should follow its uplink request.
@@ -77,8 +81,9 @@ a downlink response that should follow its uplink request.
   \label{fig:class A}
 \end{figure}
 
-There are 3 different device types based on the way to schedule the receive window slots for downlink communication: class A, B and C. Support for class A (demonstrated in the figure \ref{fig:class A} above) is compulsory with B and C being extensions to it. Class A devices schedule 2 receive windows following an uplink transmission, class B devices open receive windows periodically and class C devices listen for downlink messages continuously unless they are transmitting \cite{lora_alliance_spec}. In this project I will
-focus on the devices of class A.
+There are 3 different device types based on the way to schedule the receive window slots for downlink communication: class A, B and C. Support for class A (demonstrated in the figure \ref{fig:class A} above) is compulsory with B and C being extensions to it. Class A devices schedule 2 receive windows following an uplink transmission, class B devices open receive windows periodically and class C devices listen for downlink messages continuously unless they are transmitting \cite{lora_alliance_spec}. 
+The focus of this project will be devices of 
+class A.
 
 \subsection{Duty cycle}
 For each band LoRaWAN devices operate in, they need to comply with the industrial, scientific and medical (ISM) regulations often set by the local government \cite{duty_cycle}. These include the duty cycle limitation that determines amount of time a device can be active within a bandwidth. For example in Europe the duty cycle standards are set by the 
@@ -86,27 +91,23 @@ European Telecommunications Standards Institute (ETSI) \cite{about_etsi}.\\
 % "the recognized regional standards body dealing with telecommunications, broadcasting and other electronic communications networks and services.", as their website   states.\\ 
 
 What duty cycle basically controls is the fraction of time a device can be active on a particular sub-band (potentially on multiple channels) \cite{duty_cycle}. For example if the channel in 
-question is used for 1 time unit for every 10 time units,
+question can be used only for 1 time unit for every 10 time units, 
 the device using it has a duty cycle of 10\%. If we take into account multiple channels (within one sub-band), then we count in the total fraction of time these channels are being used by the device \cite{duty_cycle}.
 % [INFO ABOUT section 7.2.3 of the ETSI EN300.220 standard]
 
 \section{NOMA}
  
- Non-Orhogonal Multiple Access (NOMA) scheme is a relatively new concept first introduced in this publication \cite{noma_original} in 2013. As opposed to orthogonal
-frequency division multiplexing (OFDM), NOMA decodes multiple incoming signals, occupying the same time 
-or frequency resources, utilizing the power or code domain \cite{noma_imperial}. 
+ Non-Orhogonal Multiple Access (NOMA) scheme is a relatively new concept first introduced in publication \cite{noma_original} in 2013. As opposed to orthogonal
+frequency division multiplexing (OFDM), NOMA can decode multiple incoming signals, occupying the same time or frequency resources, utilizing the power domain instead.
+% \cite{noma_imperial}.
 % [DIAGRAM FROM TUTORIAL]. 
-In the power domain implementation of NOMA the decoding is achieved via successive interference cancellation (SIC) based on the different power levels of the incoming signals \cite{noma_imperial} \cite{noma_original}. \\
+In the power domain implementation of NOMA the decoding is achieved via successive interference cancellation (SIC) based on the different power levels of the incoming signals \cite{noma_original}. \\
 
-Basically what happens is that the incoming signals are decoded at the receiver in the order of decreasing channel gain, so the  strongest one is decoded first and the weakest is decoded last. Signals are decoded in that order so as to minimize the interference different signals experience \cite{noma_imperial}. After the strongest current signal is decoded, the total interference for other signals (to be decoded yet) is reduced by its largest component.\\
+The incoming signals are decoded at the receiver in the order of decreasing channel gain, so the  strongest one is decoded first and the weakest is decoded last. Signals are decoded in that order so as to minimize the interference different signals experience \cite{noma_imperial}. After the strongest current signal is decoded, the total interference for other signals (to be decoded yet) is reduced by its largest component.\\
 
 Despite the original paper \cite{noma_original} focusing on the downlink NOMA
-implementation (i.e. end-device/node being the receiver in question), we are interested in the uplink communications and thus the workings of NOMA at the gateway. 
-  
-%  As the name NOMA suggests, it it does not utilizes the orthogonality of 
-%  , but instead decodes multiple incoming signals based on the 
- 
- 
+implementation (end-device/node being the receiver in question), following the investigation of \cite{noma_imperial} here we are instersted in the workings of NOMA at the gateway, i.e. dealing with uplink packets.
+
 \section{LoRa Simulation Framework}
 
 In order to simulate a LoRaWAN network I have decided to pick one described in this paper \cite{simulator}. The developers of the paper have closely followed guidelines from The Things Network (TTN)\footnote{https://www.thethingsnetwork.org/}, which is an open community of volunteers that took on an initiative to contruct and maintain LoRaWAN stations around the world to reach its global coverage. On their website they also provide tutorials and guides to help people deploy LoRaWAN gateways and nodes. The simulation code is published in github \cite{simulator_github}. The developers have decided to simulate the LoRaWAN network via \texttt{SimPy} which is a Python discrete-event simulation framework library\cite{simpy}. The simulation is mainly driven through continuous yielding of appropriate generator functions. 
@@ -130,9 +131,10 @@ simulation framework classes. Now I will look at each of them individually.
 
 As can be seen from the figure \ref{fig:architecture} the \texttt{Node} object is characterized by the \texttt{Location}, \texttt{Energy Profile} and \texttt{LoRa Parameters} objects (among others) passed to its constructor during initialization as parameters.\\
 
-\texttt{Location} as its name suggests, simply holds the coordinates for a particular Node. The simulation assumes a rectangular cell, and the particular node location is uniformly at random selected within the bounds of that rectangle. \\
+\texttt{Location} as its name suggests, simply holds the coordinates for a particular Node. The simulation by default assumes an area of 1 square kilometer, and the particular node location is uniformly at random selected within the bounds of that square. \\
 
-\texttt{Energy Profile} holds information about the different power states and their duration in the execution loop of communication between a node and its respective gateway (sketched above in \ref{fig:class A}). The energy profile used in the original paper \cite{simulator}, as the authors stated was motivated by the energy consumption analysis of another project — LoRaWAN implementation for the EFM32 Happy Gecko develop board \cite{energy_profile}. The energy profile used is displayed in the figure below:
+\texttt{Energy Profile} holds information about the different power states and their duration in the execution loop of communication between a node and its respective gateway (sketched above in \ref{fig:class A}). The energy profile used in the original paper \cite{simulator}, as the authors stated was motivated by the energy consumption analysis of another project — LoRaWAN implementation for the EFM32 Happy Gecko develop board \cite{energy_profile}. The energy profile used is displayed in the figure 
+\ref{fig:energy_profile}:
 
 \begin{figure}[H]
   \centering
@@ -141,7 +143,7 @@ As can be seen from the figure \ref{fig:architecture} the \texttt{Node} object i
   \label{fig:energy_profile}
 \end{figure}\\
 
-The effect of implementing this energy profile can be seen in the figure \ref{fig:power_states} below; it displays, how the power states of a node develop in time:
+The effect of implementing this energy profile can be seen in the figure \ref{fig:power_states}; it displays how the power states of a node develop in time:
 
 \begin{figure}[H]
   \centering
@@ -160,14 +162,14 @@ The effect of implementing this energy profile can be seen in the figure \ref{fi
 This model is used when determining the received signal
 strength of an incoming packet based on its transmission power parameter. \\
 
-\texttt{Propagation Model} calculates the path loss 
-of a signal traveling in the channel through the air.
-The formula is defined in the original paper \cite{simulator} :
+\texttt{Propagation Model} determines the received signal strength value for an uplink packet in the air, 
+using its path loss, i.e. weakening of signal due to
+the environment. The formula for it is defined in the original paper \cite{simulator} :
 \begin{align}
     PL(d) = PL(d_0) + 10n\times log\frac{d}{d_0} + X_{\sigma} [dB] \label{eq:propagation_model}
 \end{align}
 
-Where the following parameters are used. These measurements were taken by the authors \cite{simulator} from measurements reported here \cite{propagation_model_parameters}):
+Where the following parameters are used. These values were taken by the authors of \cite{simulator} from measurements reported here \cite{propagation_model_parameters}):
 \begin{align*}
      d_0 & = 1000 \text{m}\\
      PL(d_0) & = 128.95 \text{dB}\\
@@ -175,7 +177,7 @@ Where the following parameters are used. These measurements were taken by the au
      n & = 2.32\\
 \end{align*}
 
-Collision model is not implemented as a separate object but through a collection of functions in \texttt{Air Interface}. The model implementation is motivated by the authors \cite{simulator} by the findings from another paper \cite{collision_conditions}, that looks at how reception overlap, carrier frequency, spreading factor and power can create conditions for a packet collision. The authors \cite{simulator} also assume that signals with different spreading factors are practically orthogonal and can be demodulated without colliding.\\
+Collision model is not implemented as a separate object but through a collection of functions in \texttt{Air Interface}. The model implementation is motivated by the by the findings from another paper \cite{collision_conditions}, that looks at how reception overlap, carrier frequency, spreading factor and power can create conditions for a packet collision. The authors of \cite{simulator} also assume that signals with different spreading factors are practically orthogonal and can be demodulated without colliding.\\
 
 % \texttt{SNR} model was implemented in the original framework to
 % calculate the Signal-to-Noise ratio values for the packets in the air, but in my implementation I'll use another metric 
@@ -187,8 +189,7 @@ Collision model is not implemented as a separate object but through a collection
 the uplink packets from the \texttt{Air Interface}. In order for a packet to come through it must not collide and have  a signal strength above that of gateway's specified sensitivity. On top of that the gateway ensures that the duty cycle restrictions for each channel are satisfied. This is done through
 calculating off times, i.e. periods during which the 
 channel in question cannot be used. The calculation
-involves such \texttt{LoRa Parameters} as frequency,
-spreading factor and data rate. The gateway decides 
+involves frequency and spreading factor settings. The gateway decides 
 whether the packet is discarded or the response in 
 the form of downlink is required. It also decides on the
 receive slots for the response, i.e. $RX1$ or $RX2$.\\
@@ -241,7 +242,7 @@ compare its performance against the static setting allocation and the ADR algori
 
 \chapter{Reinforcement Learning} 
 
-In this chapter I will introduce the reader to the fundamentals of Reinforcement Learning necessary to move 
+In this chapter I will introduce the fundamentals of Reinforcement Learning necessary to move 
 forward. I will start with the introduction to Markov Chains
 and build upon that explaining the mathematical intuition
 behind Markov Processes evaluation. The intuition will prevail 
@@ -272,20 +273,16 @@ into a new state $S_{t+1}$ and respectively obtains new reward $R_{t+1}$:
  
 \section{Markov Decision Process}
 
-In this section I'll touch upon the basic mathematics of evaluating the environment around the learning agent and the 
-main concepts that will be used later in the 
-Deep Reinforcement Learning model section.
-
 Markov Decision Process is a Markov Chain based decision making
 tool defined by state space $S$, action space $A$, transition 
 probability matrix $P^{a}_{ss'}$, reward 
 % $P^{a}_{ss'} = p(s_{t+1}| s_t, a_t)$
 function $R$ and decision policy $\pi$ \cite{lecture_mdp}. In 
-the subsections below I will explain what each of these is.
+the subsections below I will explain these concepts in detail.
 
 \subsection{Markov chain}
 Markov Chain is essentially a way to model stochastic
-processes with particular properties. As the name suggests it is a chain of states that describes the process we are modeling. Using an exmaple from this article \cite{markov_chain_article}, if we
+processes with particular properties. As the name suggests it is a chain of states that describes the process we are modeling. Using an example from article \cite{markov_chain_article}, if we
 are to model weather at a particular region on a daily basis,
 we could have 2 states: Sunny and Rainy. Now what interests us
 are the transitions between these 2 states. We could model
@@ -331,7 +328,7 @@ We can also define the total return value $R_t$ which is the estimated sum of al
     R_t = r_{t+1} + \gamma r_{t+2} + \gamma ^2 r_{t+3} + ... = \sum^{\infty}_{k=0}\gamma^{k}r_{t+k+1} \label{eq:return}
 \end{align}
 
-Where $\gamma$ is the discount factor such that $\gamma \in [0, 1]$ \cite{lecture_lets_go_markov}. The discount factor allows the agent to put different weight on immediate and distant rewards, with smaller $\gamma$ being more concerned with immediate results and larger $\gamma$ looking far into the future. 
+Where $\gamma$ is the discount factor such that $\gamma \in [0, 1]$ \cite{lecture_lets_go_markov}. The discount factor allows the agent to put different weight on immediate and distant rewards, with smaller $\gamma$ being more concerned with immediate results and larger $\gamma$ looking further into the future. 
 
 % \begin{align}
 %     R_{ss'}^{a} = E[r_{t+1} | S_{t} = s, A_{t} = a] \label{eq:return_matrix}
@@ -406,10 +403,12 @@ The relationship between state value and state-action value functions is as foll
 
 \section{Learning Approaches}
 
-In this section I'll look at different learning approaches such
-as Dynamic Programming and Monte-Carlo methods and how 
-these rely on agent's Model Knowledge. The final Deep Reinforcement Learning model will be based of each of these 
-and will heavily rely on concepts introduced here as well. 
+In this section I will look at different learning approaches
+such as Dynamic Programming and Monte-Carlo methods in the
+context of the Markov Decision Process model described above. 
+% The final Deep Reinforcement Learning model will be based of 
+% each of these  and will heavily rely on concepts introduced 
+% here as well. 
 
 \subsection{Policy Improvement}
 
@@ -440,7 +439,7 @@ Dynamic Programming approach in that they don't require the
 full knowledge of the environment around the agent. They fall
 in the category of Model-free learning algorithms \cite{lecture_mfl}. The process is based fully on the sampled experience.  \\
 
-The basic idea is to calculate the average return over traces of episodes, an episode being state transition of the type sampled directly from the environment. A state transition ($S, A, R, S'$) includes information about original state $S$, chosen action $A$, immediate reward $R$ and the resulting state $S'$. One condition is that each episode trace must end in a terminal state $S_{terminal}$. 
+The basic idea is to calculate the average return over traces of episodes, an episode being state transition sampled directly from the environment. A state transition ($S, A, R, S'$) includes information about original state $S$, chosen action $A$, immediate reward $R$ and the resulting state $S'$. One condition is that each episode trace must end in a terminal state $S_{terminal}$. 
 
 \subsubsection{Monte-Carlo update rule}
 
@@ -455,7 +454,7 @@ To update the mean value for a state after each transition an incremental update
     \mu_k &= \mu_{k - 1} + \frac{1}{k} (x_k - \mu_{k - 1})
 \end{align}
 
-This is an important milestone, since the running mean can be recorded without storing traces of transitions. In the same way one can update the state value function $V(s)$ (as in Monte-Carlo it holds the average reward over episodes of experience) incrementally after each new episode (s, a, r, s'):
+This is an important milestone, since the running mean can be recorded without storing traces of transitions. In the same way one can update the state value function $V(s)$ (as in Monte-Carlo it holds the average reward over episodes of experience) incrementally after each new episode \\(s, a, r, s'):
 \begin{align}
     V(s_t) \longleftarrow V(s_t) + \frac{1}{N(s_t)}(R_t - V(s_t))
 \end{align}
@@ -469,7 +468,7 @@ Moreover one can set the $N(s_t)$ value (i.e. current number of sampled transiti
 % We have now introduced two different approaches to finding the optimal Value function for a problem at hand: Dynamic Programming and Monte-Carlo. Dynamic programming achieves the optimal solution through "bootstrapping" i.e. estimating state values through
 % neighbouring states. Monte-Carlo methods calculate the estimates through sampling directly from experience i.e. traces of episodes. \\
 
-Temporal Difference (TD) is what combines Dynamic Programming and Monte-Carlo: like MC It does not require full model knowledge of Markov Decision Process at hand and 
+Temporal Difference (TD) is what combines Dynamic Programming and Monte-Carlo: like MC it does not require full model knowledge of Markov Decision Process at hand and 
 learns from episodes of experience and like DP it makes use of bootstrapping \cite{lecture_mfl}.
 
 % \begin{figure}[h!]
@@ -546,8 +545,7 @@ Soft policies have a property such that all actions have a chance to be explored
 
 A form of soft-policies are $\epsilon-$greedy policies, where 
 you can adjust a parameter $\epsilon$ to weigh a particular action such that it has a higher probability of being chosen,
-while all the other actions are equally probable (relative to each other) \cite{lecture_mfc}:\\\\
-$\epsilon$-greedy policy with $\epsilon \in [0, 1]$:
+while all the other actions are equally probable (relative to each other) \cite{lecture_mfc}. Here's a definition of an $\epsilon$-greedy policy with $\epsilon \in [0, 1]$:
 \begin{align}
     \pi(s, a) = \begin{cases} 
         1 - \epsilon + \frac{\epsilon}{|A(s)|}, \text{ if } a^{*} = arg \max_{a} Q(s, a) \\
@@ -618,8 +616,8 @@ A \longleftarrow A^{'}\;\\
 \label{algorithm:sarsa}
 \end{algorithm}\\
 
-On top of the GLIE convergence condition SARSA also needs
-to satisfy the Robbins-Monroe sequence of learning rates $\alpha$: 
+On top of the GLIE, an important convergence condition for 
+SARSA is the Robbins-Monroe sequence of learning rates $\alpha$: 
 \begin{align*}
     \sum^{\infty}_{t=1} \alpha_{t} &= \infty \\
     \sum^{\infty}_{t=1} \alpha_{t}^{2} & < \infty \\
@@ -664,7 +662,8 @@ S \longleftarrow S^{'}\;\\
 \end{algorithm}\\
 
 
-There are no explicit policies here: target policy is implicit in the greedy term $max_a Q(S', a)$ and behaviour policy is the $\epsilon$-greedy version of the target policy that we use to choose $A$. Both policies are updated with the update rule.
+There are no explicit policies here: target policy is implicit in the greedy term $max_a Q(S', a)$ and behaviour policy is the $\epsilon$-greedy version of the target policy that we use to choose $A$. Both policies are updated at once through the 
+Q function.
 
 \subsection{Cliff walking  Q-learning vs. SARSA}
 One very well known example demonstrating the difference between
@@ -707,18 +706,18 @@ algorithm \ref{algorithm:sarsa} and accounts for its Q value.
 \subsection{Limitations of tabular}
 
 In Tabular Q learning due to the discrete nature of 
-state and action spaces it is harder to represent the real world accurately as the problem of fine discretisation arises: the approximation needs to be accurate enough for meaningful learning. But this can be memory inefficient as the number of parameters grows \cite{lecture_intro_to_deep_rl}. \\
+state and action spaces it is harder to represent the real world of continuous state and action spaces accurately as the problem of fine discretisation arises: the approximation needs to be accurate enough for meaningful learning. But this can be memory inefficient as the number of parameters grows \cite{lecture_intro_to_deep_rl}. \\
 
-Another important limitation affects the exploration ability of the learning agent: each Q entry for subsequent state-action entries need to be updated independently despite obvious correlation between them.\\
+Another important limitation affects the exploration ability of the learning agent: each Q entry for subsequent state-action entries need to be updated independently despite potential direct correlation between them. \\
 
-One solution to this is function approximation. 
+One solution to this is function approximation via a neural network.
 
 \section{Neural Network}
 
 A neural network consists of multiple layers of interconnected neurons each defined by a weight and bias that are applied to the incoming signal \cite{lecture_intro_to_deep_rl}.\\
 
 In supervised learning there's usually a reference that 
-the network is trained against, for example in classification the reference might be a label to an RGB image. The model then learns weights such that the desired outputs are produced on respective inputs \cite{lecture_intro_to_deep_rl} . \\
+the network is trained against, for example in image classification the reference might be a label to an RGB image. The model then learns weights such that the desired outputs are produced on respective inputs \cite{lecture_intro_to_deep_rl} . \\
 
 This is achieved through backpropagation and gradient
 descent where the difference between current weights and
@@ -771,7 +770,7 @@ S \longleftarrow S^{'}\;\\
 \caption{Deep Q-learning. Source: \cite{lecture_dqn} }
 \end{algorithm}\\
 
-\subsection{Overfitting}
+\subsection{Overfittingin RL}
 
 Overfitting is a common problem of machine learning 
 model training in the context of supervised learning.
@@ -792,7 +791,8 @@ as in image classification for example.
 
 \section{Experience Replay Buffer}
 
-One limitation of online learning is that one transition needs to be visited many times for the network to learn appropriate weights ("many updates per transition" \cite{lecture_dqn}). \\
+One limitation of online learning is that one transition needs to be visited many times for the network to learn appropriate weights \cite{lecture_dqn}.\\
+% ("many updates per transition" ). \\
 
 A solution is to create a dataset of all the experienced data so far collected by the agent. The advantage is that any transition can be sampled from the replay buffer and trained on more than once \cite{lecture_dqn}. 
 
@@ -915,88 +915,93 @@ S \longleftarrow S^{'}\;\\
 
 \chapter{Learning Model}
 
-In this chapter I will describe my learning model
-for the problem of resource optimization for LoRaWAN devices with
-NOMA. It will tie together the background material from chapters
-2 and 3 and glance over the related work in the field as well.
-% In this chapter I will describe approach to the  
-% reinforcement learning problem at hand. This will
-% include the learning agent, rewards function,
-% action and state space.
+In this chapter the background material from chapter 2 and 3 will be 
+brought together. I will explain my implemented learning model and
+how it works in the context of the LoRa framework used. I will also 
+look at it in the context of the related work in the field, as there
+have been a number of attempts to apply reinforcement learning 
+to the problem of resource optimization within LoRa networks.
 
 \section{Related work in the field}
-
-There have a been a few attempts at implementing resource optimization with Reinforcement Learning. 
-
-For example the
-authors of this paper \cite{rl_lora_original} applied 
-Deep Q learning to resource optimization for LoRaWAN
-networks and produced promising results for energy
-consumption but not for throughput. Their approach
-however is the most relatable in terms of the learning
-model used. 
-
-In this paper \cite{rl_lora_sarsa_dqn} both
-SARSA and DQN approaches are applied, former used for
-light traffic and the latter for heavy traffic, due state
-space growing based on the current number of users. On
-top of that the actions in that paper mean swapping users
-in and out of different channels. 
-
-The researchers here 
-\cite{rl_distributed_mab} took distributed learning
-approach with the naive tabular multi-agent multi-arm
-bandit (MAB) implementation.
 
 In most of the surveyed work the details and characteristics
 of the implemented models such as the choice of action and
 state space or the choice of the learning algorithm 
-(i.e. Q-learning vs. SARSA) are either absent or vague and 
-unjustified. In this project I am attempting at a more
+(i.e. Q-learning vs. SARSA) are either absent or vaguely justified. In this project I am attempting at a more
 detailed and clear study of different approaches to the 
 problem with the learning model introduced in paper \cite{rl_lora_original} taken as the partial basis. 
 Furthermore the implementation of NOMA at the gateway
 rather than at the node is a realitively new concept
 that will be adopted and studied here as well.
 
-\section{Learning Model}
 
-In case of ADR optimization the gateway executes the algorithm
-and returns the desired parameters to the node via a downlink 
-message. Here, however I've decided to implement the learning 
-agent on the node side, unlike for example in this paper 
-\cite{rl_lora_sarsa_dqn} where the agent is abstracted over the
-nodes. In my implementation however each of the nodes
-contributes to the learning process and takes a portion of the
-agency role upon itself. It contributes to optimizing the Q function both tabular and deep through the data it individually collects.
+% On top of that the actions in that paper mean swapping users in and out of different channels. 
 
-\section{Distributed Learning and Clustering}
+\section{Learning Agent}
+
+Some researchers, as the authors of \cite{rl_lora_sarsa_dqn} have implemented a gateway
+centric approach, similar in that way to the ADR algorithm, where the 
+gateway gathers data from all the nodes
+it communicates with and bases the learning model on that information. 
+Some, like paper \cite{rl_lora_original}, instead focus on the learning
+from the perspective of the nodes. The difficulty of the former is 
+the randomness of network load. It is not possible to determine at 
+any point in time how many nodes will hit the gateway and thus 
+a state space must be configurable based on the number of nodes 
+in question \cite{rl_lora_sarsa_dqn}. Therefore I decided for the sake
+of implementation simplicity to take the node centric approach with 
+stable state and action spaces (though as will be seen later still
+subject to tuning). \\
+
+In my implementation each of the nodes contributes to the learning 
+process and takes a portion of the agency role upon itself. It
+contributes to process of optimizing the Q function (both tabular and
+deep) through the data it individually collects.
+
+\section{Grouping nodes together}
+
 The ideal situation would of course be having one learning agent
-per LoRa node so they could learn a policy specifically suited for that one node. But the case is that typically nodes located 
-near each other can benefit from one policy as the authors of this paper \cite{rl_lora_original} recognized. However 
-in that paper nodes a grouped together based on their 
-distance from the node and so clusters are of a circular 
-form. 
+per LoRa node so they could learn a policy specifically suited for that one node. The case is that typically nodes located 
+near each other can benefit from one policy as the authors of paper
+\cite{rl_lora_original} and \cite{rl_distributed_mab} recognized.
+What they found is that in particular the optimal spreading factor value is based on
+the node's distance from the base station and therefore clustering of 
+nodes into respective rings around the gateway is adopted. A significant 
+limitation of this approach, however, is its presupposition of a single 
+base station within the simulation, as in a multi-gateway setting 
+this kind of grouping wouldn't make sense as nodes are communicating 
+with all gateways within reach in accordance with the ALOHA protocol
+and the distance between a node and all the base stations within its 
+reach is most likely to vary for all nodes. Therefore in this project
+I take a more node centric clustering, grouping them together based
+on their positioning relative to the whole simulation area frame rather
+than relative to the gateway. I adopt a straightforward division of 
+nodes into clusters based on square sectors as can be seen from figure 
+\ref{fig:my_sectors}.
+
 % [CITATION or EXPERIMENT] 
-I wanted to try and make clusters even more local based and divided the simulation cell into 
-square sectors of adjustable size as shown in the figure \ref{fig:my_sectors} below. On top of that in a multiple
-gateway setting the original division is harder to 
-adhere to since its gateway centric, while mine centers
-around the location of nodes realtive to each other in
-essence. 
+% I wanted to try and make clusters even more local based and divided the simulation cell into 
+% square sectors of adjustable size as shown in the figure \ref{fig:my_sectors} below. On top of that in a multiple
+% gateway setting the original division is harder to 
+% adhere to since its gateway centric, while mine centers
+% around the location of nodes realtive to each other in
+% essence. 
 
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.7]{figures/my_sectors.PNG}
-  \caption{Grouping of nodes together with one cluster highlighted with red. \\ Sector size = 100 meters}
+  \caption{Grouping of nodes together with one cluster highlighted red. \\ Sector size = 100 meters}
   \label{fig:my_sectors}
 \end{figure}
 
-So in order not to waste memory on slightly different models for nodes located near each other nodes can be grouped into clusters and share Q function (or learning weights
-in case of a deep model). \\
-
-Below is the diagram demonstrating the distribution of 
-deep learning agents over 3 node clusters.\\
+This kind of clustering allows the model more control over the trade off
+between preciseness (i.e. how small is the area, each sector covers) 
+and the memory usage as behind each cluster is essentially a Q function,
+in a the form of a table or a neural network. This is demonstrated in the
+figure below describing a toy example of 3 deep learning agents over
+the 3 respective node clusters. The diagram explains the basic 
+relationship between them and the respective python classes (e.g. 
+\texttt{NOMA})\\
 
 \begin{tikzpicture}
   [node distance=.8cm,
@@ -1036,27 +1041,49 @@ deep learning agents over 3 node clusters.\\
 
 \end{tikzpicture}
 
+\section{Reward Function}
 
-
-\subsection{Reward}
-
-Follwing the introduction of NOMA it makes sense to base
-the reward function to a respective metric such as SINR.
-Such metric is throughput, which can be calculated as follows: 
+In regards to the reward function, some inspiration was taken 
+from the paper \cite{rl_lora_original} published last year. The paper 
+focused on maximizing the number of packets that reach the base station
+while minimizing the energy usage at the nodes. Since in this project
+we are exploring how NOMA performs at the gateway it makes sense
+to switch the amount of packets for the throughput value, since 
+the throughput is calculated based on the SINR value more sensitive to
+the workings of NOMA in the way it affects the interference at the
+gateway.\\
+% The researchers here 
+% \cite{rl_distributed_mab} took distributed learning
+% approach with the naive tabular multi-agent multi-arm
+% bandit (MAB) implementation.
+% Another presupposition that a few of papers take is that the
+% optimal spreading factor values should be shared across the rings
+% of nodes determined by their distance from the gateway in question,
+% which places the problem outside of the multigateway setting where
+% a more complex positioning of the node could be assumed in relation
+% to many base stations st the same time. 
+% \section{Learning Model}
+% \subsection{Reward}
+% Following the introduction of NOMA it makes sense to base
+% the reward function to a respective metric such as SINR.
+% Such metric is throughput, which can be calculated as follows: 
+Throughput can be calculated as follows:
 \begin{align}
 throughput = log_2(\text{SINR}+ 1)
 \end{align}
 
-Furthermore in order to minimize energy consumed at nodes I 
-include the reciprocal of energy consumed per bit $E_{bit}$ to the reward
-value. So as a result we get:
-\begin{align}
-    reward = \frac{T}{E_{bit}}
-\end{align}
+Thus borrowing the energy term from \cite{rl_lora_original} into the 
+denominator we get the following reward function targeted at 
+maximizing the throughput and minimzing the energy usage at the node.
+In this particular case I will used the term of energy per bit, so the reward metric can demonstrate the learning better (as if we just
+plot the energy consumed at the node it will obviously accumulate
+over time and the indication of learning would be the decrease
+in the energy curves gradient rather than the decrease in the value of the curve itself). \\
 
-This is what the learning algorithm woill try to maximize, i.e. in this way it will maximize the 
-throughput and energy consumption for each individual
-node involved. 
+Thus the reward function used is:
+\begin{align}
+    reward = \frac{throughput}{E_{bit}}
+\end{align}
 
 \subsubsection{Reward collection}
 
@@ -1071,30 +1098,51 @@ packet didn't reach the base station. So naturally I decided to establish this f
 select and take an action then send the uplink packet,
 confirm the state of the downlink transmission, compute
 the reward and learn from it. There are other potential 
-ways to establish the needed delay, maybe 
+ways to establish the needed delay, one could 
 establish more wait time but this implementation is the 
 simplest one. As in case of a successful uplink transmission
 the action taken at the beginning should have a direct effect on the throughput and energy values of that packet 
 which should've manifested themselves by the time the receive
-windows for the downlink packets are opened. 
+windows for the downlink packets are scheduled. This simple loop 
+can be demonstrated with a piece of pseudocode:\\
+
+\begin{algorithm}[H]
+\SetAlgoLined
+ \While{True}{
+  determine current state $S_{curr}$\;\\
+  choose next action $A_{next}$\;\\
+  execute $A_{next}$\;\\
+  sleep\;\\
+  process\;\\
+  send a new uplink packet\;\\
+  yield a downlink packet\;\\ 
+  compute the current reward\;\\
+  train the Q-network or Q-table via the update rule
+ }
+ \caption{Run cycle of a node}
+\end{algorithm}
 
 \subsection{Action space}
-Following the example of this paper \cite{rl_lora_original} the action space consists naturally of the \texttt{LoRaPacket} 
-parameters available to Node, i.e. spreading factor,
-transmission power and channel (frequency): 
-\texttt{[sf, tp, channel]}. These are the main
-parametera available to Node for changing. \\
 
-A further suggestion would be to explore other parameters from \texttt{LoRaParameters}.
+Following the authors of \cite{rl_lora_original} the action
+space will be defined by the combinations of spreading factor,
+transmission power and channel used. According to the Things Network description \cite{ttn_adr}, the 
+parameters available to the ADR algorithm are the spreading 
+factor, transmission power and bandwidth; thus this particular
+action space should provide a fair comparison between the 2
+approaches. 
 
 \subsection{State space}
-In this simulation I've made the state space adjustable 
-so it is possible to run the state space consisting of any 
-combination of these parameters (inferred from
-\cite{rl_lora_original}): spreading factor (SF), 
-transmission power (TP), channel (frequency), received signal
-strength (RSS), signal-to-interference-plus-noise ratio (SINR),
-energy consumed per bit, packet ID and number of packets:\\
+
+Again due to a similar approach the basis of the state space will
+be borrowed from \cite{rl_lora_original}, but here I have made
+the state space adjustable and subject to tuning, so it can 
+consist of any combination of the following parameters: spreading
+factor (SF),  transmission power (TP), channel (frequency),
+received signal strength (RSS), signal-to-interference-plus-noise
+ratio (SINR), energy consumed per bit, packet ID and number of
+packets: \\ 
+
 \texttt{[sf, tp, channel, rss, sinr, energy, packet\_id, num\_packet]}
 
 % \subsection{Slow Action Traversal}
@@ -1964,11 +2012,16 @@ and deep reinforcement learning.
 
 \begin{figure}[H]
 \centering
-\hspace*{-1.2cm}  
-\includegraphics[scale=0.35]{plots/adr/adr_inspection_tp_distro.png} \\
-\hspace*{-1.2cm}  
-\includegraphics[scale=0.35]{plots/adr/adr_inspection_sf_distro.png} \\
-  \caption{TP and SF distribution at the end}
+\hspace*{-2.5cm}  
+\includegraphics[scale=0.45]{plots/adr/adr_tp_distro.png} 
+\caption{TP distribution}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\hspace*{-2.5cm}  
+\includegraphics[scale=0.45]{plots/adr/adr_sf_distro.png} 
+\caption{SF distribution}
 \end{figure}
 
 As for the static (leftmost) the values are the same as 
@@ -2001,9 +2054,9 @@ ADR algorithm here by a large margin.
 
 \begin{figure}[H]
 \centering
-\hspace*{-0.5cm}  
-\includegraphics[scale=0.70]{plots/adr/energy_efficiency.PNG}
-  \caption{ADR enabling point in time}
+\hspace*{-0.6cm}  
+\includegraphics[scale=0.40]{plots/adr/adr_hist.png}
+  \caption{Data Extraction Rate and Energy Efficiency histograms}
 \end{figure}
 
 
@@ -2015,7 +2068,7 @@ a particular value was visited we can see the following patterns:
 \centering
 \hspace*{-1.5cm}  
 \includegraphics[scale=0.40]{plots/adr/adr_inspection_counts.png}
-  \caption{ADR enabling point in time}
+  \caption{Respectively, tranmission power, spreading factor and channel count plots}
 \end{figure}
 
 Obviously deep Q-learning does significantly more
@@ -2031,7 +2084,7 @@ for the deep q-learning algorithm:
 \begin{figure}[H]
 \centering
 \hspace*{-1.5cm}  
-\includegraphics[scale=0.30]{plots/adr/energy_variance_payload.png}
+\includegraphics[scale=0.50]{plots/adr/energy_payload.png}
   \caption{Energy per byte in relation to payload size for different path variance values}
 \end{figure}
 
@@ -2043,6 +2096,51 @@ for the deep q-learning algorithm:
   \caption{Plots generated locally}
   \label{fig:my_sectors}
 \end{figure}
+
+\section{Scalability and Testing}
+Here we will look at how the trained model will perform on a new set
+of nodes, i.e. new set of node locations. This is the way to test the 
+implemented reinforcemnt learning model, since other, more typical
+supervised references to compare against are unavailable in this case.
+So the only way to test the trained model is to evaluate it in 
+the same way as during the training process. 
+
+The neural network in question was trained on a set of 1000 nodes and 
+we will see how it performs on different number of nodes within the 
+simulation cell. The numbers of nodes are 100, 500, 1000, 2000, 3000,
+4000 and 5000. As can be seen from figure \ref{fig:scalability_small} the model performs relatively consistently for different numbers of nodes with slight decline in Data Extraction Rate
+and slight variation around the energy efficiency values. 
+
+\begin{figure}[H]
+\centering
+\hspace*{-2.3cm}  
+\includegraphics[scale=0.45]{plots/scalability/scalability_small.png}\\
+\hspace*{-1.3cm}  
+\includegraphics[scale=0.45]{plots/scalability/scalability_histogram.png}
+  \caption{Scalability of the trained model}
+  \label{fig:scalability_small}
+\end{figure}
+
+% \begin{figure}[H]
+% \centering
+% \hspace*{-1.3cm}  
+% \includegraphics[scale=0.45]{plots/scalability/scalability_histogram.png}
+%   \caption{DER and EE for scalability}
+%   \label{fig:scalability_histogram}
+% \end{figure}
+
+\chapter{Conclusions and Future work}
+
+\section{Limitations}
+The hypertuning process was limited by the resources provided by the 
+Google Colab PRO services and this determined various parameters 
+as the simulation run times, number of learning agents affordable and the number of nodes within the system as well.
+
+\section{Future work}
+For the action space, a further suggestion would be to explore other parameters from \texttt{LoRaParameters}.\\
+
+Policy networks and such.
+
 
 
 % \chapter{Evaluation}
